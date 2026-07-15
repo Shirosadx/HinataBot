@@ -45,8 +45,8 @@ module.exports = {
 
       msg += `⭔ Total Commands: ${commands.size}\n`;
       msg += `⭔ Type ${prefix}help <cmd> to see details.\n`;
-      msg += `╭─✦ ADMIN: Snow 彡\n`;
-      msg += `├‣ WHATSAPP\n`;
+      msg += `╭─✦ ADMIN: Snow angel|Gerson\n`;
+      msg += `├‣ WHATSAPP\n`;867872770
       msg += `╰‣ m.me/gerson.azael0`;
 
       await message.reply({ body: msg });
