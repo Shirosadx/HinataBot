@@ -22,7 +22,7 @@ module.exports = {
                 category: "image gen",
                 guide: {
                         bn: '   {pn} <prompt>: ছবি তৈরি করতে বর্ণনা দিন',
-                        en: '   {pn} <prompt>: Provide a description to generate image',
+                        en: '   {pn} <prompt>: De uma descrição para gerar a imagem',
                         vi: '   {pn} <prompt>: Cung cấp mô tả để tạo hình ảnh'
                 }
         },
@@ -36,8 +36,8 @@ module.exports = {
                 },
                 en: {
                         noPrompt: "× Baby, please provide a prompt to generate image",
-                        wait: "🔄 | DALL-E 3 Image Generating, please wait...",
-                        success: "𝐇𝐞𝐫𝐞'𝐬 𝐲𝐨𝐮𝐫 𝐃𝐀𝐋𝐋-𝐄 𝟑 𝐢𝐦𝐚𝐠𝐞 𝐛𝐚𝐛𝐲 <😘",
+                        wait: "🔄 | DALL-3 Gerando imagem, por favor aguarde",
+                        success: "Aqui está a sua obra de arte <😘",
                         error: "× API error: %1. Contact MahMUD for help.\n•WhatsApp: 01836298139"
                 },
                 vi: {
