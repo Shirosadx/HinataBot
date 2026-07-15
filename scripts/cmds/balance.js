@@ -39,7 +39,7 @@ const saveData = (data) => {
 const ensureUser = (data, userId) => {
     if (!data.users[userId]) {
         data.users[userId] = {
-            money: 10000,
+            money: 0,
             slot_wins: 0,
             slot_losses: 0,
             slot_total_bet: 0,
