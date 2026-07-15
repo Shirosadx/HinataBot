@@ -1,63 +1,71 @@
-const axios = require("axios");
+const fs = require('fs');
+const path = require('path');
 
-module.exports = {
-  config: {
-    name: "top",
-    version: "1.7",
-    author: "MahMUD",
-    role: 0,
-    category: "economy",
-    guide: {
-      en: "{pn} bal | {pn} exp"
-    }
-  },
+const DATA_FILE = path.join(__dirname, 'slot_data.json');
 
-  onStart: async function ({ api, args, message, usersData }) {
-     const obfuscatedAuthor = String.fromCharCode(77, 97, 104, 77, 85, 68); 
-     if (module.exports.config.author !== obfuscatedAuthor) {
-     return api.sendMessage("You are not authorized to change the author name.", event.threadID, event.messageID);
-     }
+const loadData = () => {
     try {
-      const type = args[0]?.toLowerCase() || "bal";
-      const allUsers = await usersData.getAll();
-
-      if (!allUsers || allUsers.length === 0) return;
-
-      if (type === "exp") {
-        const topExp = allUsers
-          .filter(u => (u.exp || 0) > 0)
-          .sort((a, b) => b.exp - a.exp)
-          .slice(0, 10);
-
-        const topList = topExp.map((user, index) => {
-          return `${index + 1}. ${user.name || "Unknown"}: ${formatShortNumber(user.exp)} EXP`;
-        });
-
-        return message.reply(`👑 Top 10 EXP Users:\n\n${topList.join("\n")}`);
-      }
-
-      const topMoney = allUsers
-        .filter(u => (u.money || 0) > 0)
-        .sort((a, b) => b.money - a.money)
-        .slice(0, 10);
-
-      const topList = topMoney.map((user, index) => {
-        return `${index + 1}. ${user.name || "Unknown"}: $${formatShortNumber(user.money)}`;
-      });
-
-      return message.reply(`👑 Top 10 Richest Users:\n\n${topList.join("\n")}`);
+        if (fs.existsSync(DATA_FILE)) {
+            const raw = fs.readFileSync(DATA_FILE, 'utf8');
+            return JSON.parse(raw);
+        }
     } catch (e) {}
-  }
+    return { users: {}, global: { jackpot: 0, total_bets: 0, total_payouts: 0 } };
 };
 
-function formatShortNumber(num) {
-  if (!num) return "0";
-  const units = ["", "K", "M", "B", "T"];
-  let unit = 0;
-  let value = typeof num !== "number" ? parseInt(num) || 0 : num;
-  while (value >= 1000 && unit < units.length - 1) {
-    value /= 1000;
-    unit++;
-  }
-  return Number(value.toFixed(1)).toString().replace(/\.0$/, "") + units[unit];
-}
+module.exports = {
+    config: {
+        name: "top",
+        aliases: ["ranking", "maisricos"],
+        version: "1.0",
+        author: "Gerson",
+        countDown: 5,
+        role: 0,
+        description: {
+            pt: "Veja o ranking dos mais ricos"
+        },
+        category: "economy",
+        guide: {
+            pt: "   {pn}: Ranking dos mais ricos"
+        }
+    },
+
+    onStart: async function ({ message }) {
+        const data = loadData();
+        const users = data.users;
+        const userIds = Object.keys(users);
+        
+        const players = userIds
+            .filter(id => users[id].money > 0)
+            .map(id => ({
+                userId: id,
+                money: users[id].money || 0,
+                name: users[id].name || `User_${id}`
+            }))
+            .sort((a, b) => b.money - a.money);
+
+        if (players.length === 0) {
+            return message.reply("📊 | NINGUÉM TEM DINHEIRO AINDA!");
+        }
+
+        const top10 = players.slice(0, 10);
+        let msg = "🏆 **MAIS RICOS** 🏆\n\n";
+        
+        top10.forEach((user, index) => {
+            let medal = "";
+            if (index === 0) medal = "🥇 ";
+            else if (index === 1) medal = "🥈 ";
+            else if (index === 2) medal = "🥉 ";
+            else medal = `${index + 1}. `;
+            
+            msg += `${medal} **${user.name}**\n`;
+            msg += `   💰 ${user.money}$\n\n`;
+        });
+
+        const totalMoney = players.reduce((acc, p) => acc + p.money, 0);
+        const totalPlayers = players.length;
+        msg += `📊 **TOTAL:** ${totalMoney}$ | **JOGADORES:** ${totalPlayers}`;
+
+        return message.reply(msg);
+    }
+};
