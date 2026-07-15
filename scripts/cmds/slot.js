@@ -1,9 +1,62 @@
+const fs = require('fs');
+const path = require('path');
+
+// Caminho do arquivo de dados
+const DATA_FILE = path.join(__dirname, 'slot_data.json');
+
+// 🔥 FUNÇÕES PRA MANIPULAR O JSON
+const loadData = () => {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const raw = fs.readFileSync(DATA_FILE, 'utf8');
+            return JSON.parse(raw);
+        }
+    } catch (e) {
+        console.log('Erro ao ler dados, criando novo arquivo');
+    }
+    // Dados padrão
+    return {
+        users: {},
+        global: {
+            jackpot: 0,
+            total_bets: 0,
+            total_payouts: 0
+        }
+    };
+};
+
+const saveData = (data) => {
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+        return true;
+    } catch (e) {
+        console.error('Erro ao salvar dados:', e);
+        return false;
+    }
+};
+
+// 🔥 FUNÇÃO PRA GARANTIR QUE O USUÁRIO EXISTE
+const ensureUser = (data, userId) => {
+    if (!data.users[userId]) {
+        data.users[userId] = {
+            money: 10000,
+            slot_wins: 0,
+            slot_losses: 0,
+            slot_total_bet: 0,
+            slot_biggest_win: 0,
+            name: `User_${userId}`
+        };
+        saveData(data);
+    }
+    return data;
+};
+
 module.exports = {
     config: {
         name: "slot",
         aliases: ["caçaniqueis", "roleta"],
-        version: "2.1",
-        author: "Gerson",
+        version: "2.3",
+        author: "SeuNome",
         countDown: 5,
         role: 0,
         description: {
@@ -11,44 +64,65 @@ module.exports = {
         },
         category: "economy",
         guide: {
-            pt: "   {pn} [valor]: Aposte um valor para jogar\n   {pn} ranking: Veja o ranking dos maiores ganhadores"
+            pt: "   {pn} [valor]: Aposte um valor para jogar\n   {pn} ranking: Veja o ranking dos maiores ganhadores\n   {pn} reset: Reseta todos os dados (adm apenas)"
         }
     },
 
-    onStart: async function ({ message, usersData, event, args, global }) {
+    onStart: async function ({ message, usersData, event, args }) {
         const { senderID } = event;
-        //
         const userId = parseInt(senderID);
         const command = args[0]?.toLowerCase();
 
-        //
+        // Carrega os dados
+        let data = loadData();
+
+        // Comando de ranking
         if (command === "ranking" || command === "rank") {
-            return await this.showRanking({ message, usersData, global });
+            return await this.showRanking({ message, data });
         }
 
-        //
+        // Comando de reset (apenas admin)
+        if (command === "reset") {
+            // Verifica se é admin (opcional)
+            const isAdmin = false; // Coloca lógica de admin aqui
+            if (!isAdmin) {
+                return message.reply("❌ | Apenas administradores podem resetar!");
+            }
+            
+            // Reseta tudo
+            fs.writeFileSync(DATA_FILE, JSON.stringify({
+                users: {},
+                global: {
+                    jackpot: 0,
+                    total_bets: 0,
+                    total_payouts: 0
+                }
+            }, null, 2));
+            return message.reply("🔄 | Todos os dados foram resetados!");
+        }
+
+        // Verifica aposta
         const betAmount = parseInt(args[0]);
         if (!betAmount || betAmount <= 0) {
             return message.reply("🎰 | Aposte um valor válido! Ex: !slot 1000\n📊 | Ou use !slot ranking");
         }
 
-        const userMoney = await usersData.get(userId, "money");
-        const userWins = await usersData.get(userId, "slot_wins") || 0;
-        const userLosses = await usersData.get(userId, "slot_losses") || 0;
-        const userTotalBet = await usersData.get(userId, "slot_total_bet") || 0;
-        const userBiggestWin = await usersData.get(userId, "slot_biggest_win") || 0;
+        // Garante que o usuário existe
+        data = ensureUser(data, userId);
+
+        const userData = data.users[userId];
+        const userMoney = userData.money || 10000;
 
         if (betAmount > userMoney) {
             return message.reply(`❌ | Você só tem ${userMoney}$, aposta menor!`);
         }
 
-        //
-        const GLOBAL_ID = 999999999; // ID fixo pra dados globais
-        let jackpot = await usersData.get(GLOBAL_ID, "slot_jackpot") || 0;
-        let totalBets = await usersData.get(GLOBAL_ID, "slot_total_bets") || 0;
-        let totalPayouts = await usersData.get(GLOBAL_ID, "slot_total_payouts") || 0;
+        // Dados globais
+        let jackpot = data.global.jackpot || 0;
+        let totalBets = data.global.total_bets || 0;
+        let totalPayouts = data.global.total_payouts || 0;
 
-        //
+        // Símbolos do caça-níquel
         const symbols = ["🍒", "🍋", "🍊", "🍇", "💎", "7️⃣", "⭐", "🎰"];
         const result = [
             symbols[Math.floor(Math.random() * symbols.length)],
@@ -59,7 +133,7 @@ module.exports = {
         let winMultiplier = 0;
         let winType = "";
 
-        //
+        // Verifica combinações
         if (result[0] === result[1] && result[1] === result[2]) {
             if (result[0] === "💎") {
                 winMultiplier = 15;
@@ -79,10 +153,10 @@ module.exports = {
             }
         } else if (result[0] === result[1] || result[1] === result[2] || result[0] === result[2]) {
             winMultiplier = 1.5;
-            winType = "burlador yeah";
+            winType = "👍 DUPLO!";
         }
 
-        //
+        // 5% de chance de ativar o jackpot progressivo
         const jackpotChance = Math.random() < 0.05;
         let jackpotWon = 0;
 
@@ -102,11 +176,11 @@ module.exports = {
 
             newMoney = userMoney - betAmount + winnings;
             
-            await usersData.set(userId, "slot_wins", userWins + 1);
-            await usersData.set(userId, "slot_total_bet", userTotalBet + betAmount);
+            userData.slot_wins = (userData.slot_wins || 0) + 1;
+            userData.slot_total_bet = (userData.slot_total_bet || 0) + betAmount;
             
-            if (winnings > userBiggestWin) {
-                await usersData.set(userId, "slot_biggest_win", winnings);
+            if (winnings > (userData.slot_biggest_win || 0)) {
+                userData.slot_biggest_win = winnings;
             }
 
             totalPayouts += winnings;
@@ -123,8 +197,8 @@ module.exports = {
             jackpot += jackpotContribution;
             newMoney = userMoney - betAmount;
             
-            await usersData.set(userId, "slot_losses", userLosses + 1);
-            await usersData.set(userId, "slot_total_bet", userTotalBet + betAmount);
+            userData.slot_losses = (userData.slot_losses || 0) + 1;
+            userData.slot_total_bet = (userData.slot_total_bet || 0) + betAmount;
 
             finalMessage += `😢 **PERDEU!**\n`;
             finalMessage += `💸 Perdeu: ${betAmount}$\n`;
@@ -133,30 +207,36 @@ module.exports = {
         }
 
         // Atualiza dados
-        totalBets += 1;
-        await usersData.set(GLOBAL_ID, "slot_jackpot", jackpot);
-        await usersData.set(GLOBAL_ID, "slot_total_bets", totalBets);
-        await usersData.set(GLOBAL_ID, "slot_total_payouts", totalPayouts);
+        userData.money = newMoney;
+        data.global.jackpot = jackpot;
+        data.global.total_bets = totalBets + 1;
+        data.global.total_payouts = totalPayouts;
 
-        await usersData.set(userId, "money", newMoney);
+        // 🔥 SALVA OS DADOS NO ARQUIVO
+        saveData(data);
 
         finalMessage += `\n\n🎰 **Jackpot Atual:** ${jackpot}$`;
 
         return message.reply(finalMessage);
     },
 
-    showRanking: async function ({ message, usersData }) {
-        const allUsers = await usersData.getAll();
+    showRanking: async function ({ message, data }) {
+        const users = data.users;
+        const userIds = Object.keys(users);
         
-        const players = allUsers.filter(user => 
-            (user.slot_wins > 0 || user.slot_losses > 0) && 
-            user.userID !== 999999999 // Filtra o dado global
-        );
+        // Filtra jogadores
+        const players = userIds.filter(id => 
+            (users[id].slot_wins > 0 || users[id].slot_losses > 0)
+        ).map(id => ({
+            ...users[id],
+            userId: id
+        }));
 
         if (players.length === 0) {
             return message.reply("📊 | Ninguém jogou ainda! Seja o primeiro!");
         }
 
+        // Ordena por maior ganho
         const sorted = players.sort((a, b) => 
             (b.slot_biggest_win || 0) - (a.slot_biggest_win || 0)
         );
@@ -166,7 +246,7 @@ module.exports = {
         let rankingMessage = "🏆 **RANKING DOS MAIORES GANHADORES** 🏆\n\n";
 
         top10.forEach((player, index) => {
-            const name = player.name || `User ${player.userID}`;
+            const name = player.name || `User ${player.userId}`;
             const wins = player.slot_wins || 0;
             const biggestWin = player.slot_biggest_win || 0;
             const totalBet = player.slot_total_bet || 0;
@@ -182,10 +262,9 @@ module.exports = {
             rankingMessage += `   🎯 Vitórias: ${wins} | Apostado: ${totalBet}$\n\n`;
         });
 
-        const GLOBAL_ID = 999999999;
-        const jackpot = await usersData.get(GLOBAL_ID, "slot_jackpot") || 0;
-        const totalBets = await usersData.get(GLOBAL_ID, "slot_total_bets") || 0;
-        const totalPayouts = await usersData.get(GLOBAL_ID, "slot_total_payouts") || 0;
+        const jackpot = data.global.jackpot || 0;
+        const totalBets = data.global.total_bets || 0;
+        const totalPayouts = data.global.total_payouts || 0;
 
         rankingMessage += `📊 **ESTATÍSTICAS GLOBAIS**\n`;
         rankingMessage += `🎰 Jackpot: ${jackpot}$\n`;
