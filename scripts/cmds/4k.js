@@ -36,7 +36,7 @@ module.exports = {
                 en: {
                         noImage: "• Baby, please reply to an image or provide a link! 😘",
                         wait: "Estou melhorando a sua imagem 😺",
-                        success: "✅ | ✅ | Sucesso agora melhorada em 4k"",
+                        success: "✅ | Sucesso agora melhorada em 4k"",
                         error: "× API error: %1. Contacta ao Gerson para help."
                 },
                 vi: {
