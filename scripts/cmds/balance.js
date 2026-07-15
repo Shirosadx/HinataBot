@@ -1,63 +1,99 @@
-module.exports = {
-        config: {
-                name: "balance",
-                aliases: ["bal", "টাকা"],
-                version: "1.7",
-                author: "MahMUD",
-                countDown: 5,
-                role: 0,
-                description: {
-                        bn: "আপনার বা ট্যাগ করা ইউজারের ব্যালেন্স দেখুন (Short Form)",
-                        en: "View your money or tagged person money in formatted style",
-                        vi: "Xem số tiền của bạn hoặc người được tag (định dạng ngắn)"
-                },
-                category: "economy",
-                guide: {
-                        bn: '   {pn}: নিজের ব্যালেন্স দেখতে\n   {pn} @tag: কারো ব্যালেন্স দেখতে',
-                        en: '   {pn}: View your money\n   {pn} @tag: View the money of the tagged person',
-                        vi: '   {pn}: Xem số tiền của bạn\n   {pn} @tag: Xem số tiền của người được tag'
-                }
-        },
+const fs = require('fs');
+const path = require('path');
 
-        langs: {
-                bn: {
-                        money: "বেবি, তোমার কাছে মোট %1$ আছে।",
-                        moneyOf: "%1 এর কাছে মোট %2$ আছে।"
-                },
-                en: {
-                        money: "Baby, you have a total of %1$.",
-                        moneyOf: "%1 has a total of %2$."
-                },
-                vi: {
-                        money: "🏦 | Bạn đang có %1$",
-                        moneyOf: "💰 | %1 đang có %2$"
-                }
-        },
+// 🔥 MESMO ARQUIVO DO SLOT
+const DATA_FILE = path.join(__dirname, 'slot_data.json');
 
-        onStart: async function ({ message, usersData, event, getLang }) {
-                const { mentions, senderID } = event;
-
-                 const formatNumber = (num) => {
-                        if (!num) return "0";
-                        let n = typeof num !== "number" ? parseInt(num) || 0 : num;
-                        const units = ["", "K", "M", "B", "T"];
-                        let unit = 0;
-                        while (n >= 1000 && ++unit < units.length) n /= 1000;
-                        return n.toFixed(1).replace(/\.0$/, "") + units[unit];
-                };
-
-                if (Object.keys(mentions).length > 0) {
-                        const uids = Object.keys(mentions);
-                        let msg = "";
-                        for (const uid of uids) {
-                                const userMoney = await usersData.get(uid, "money");
-                                const name = mentions[uid].replace("@", "");
-                                msg += getLang("moneyOf", name, formatNumber(userMoney)) + '\n';
-                        }
-                        return message.reply(msg);
-                } else {
-                        const userMoney = await usersData.get(senderID, "money");
-                        return message.reply(getLang("money", formatNumber(userMoney)));
-                }
+// Carrega os dados (igual ao slot)
+const loadData = () => {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const raw = fs.readFileSync(DATA_FILE, 'utf8');
+            return JSON.parse(raw);
         }
+    } catch (e) {
+        console.log('Erro ao ler dados, criando novo...');
+    }
+    return {
+        users: {},
+        global: {
+            jackpot: 0,
+            total_bets: 0,
+            total_payouts: 0
+        }
+    };
+};
+
+// Salva os dados (igual ao slot)
+const saveData = (data) => {
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+        return true;
+    } catch (e) {
+        console.error('Erro ao salvar dados:', e);
+        return false;
+    }
+};
+
+// 🔥 GARANTE QUE O USUÁRIO EXISTE
+const ensureUser = (data, userId) => {
+    if (!data.users[userId]) {
+        data.users[userId] = {
+            money: 10000,
+            slot_wins: 0,
+            slot_losses: 0,
+            slot_total_bet: 0,
+            slot_biggest_win: 0
+        };
+        saveData(data);
+    }
+    return data;
+};
+
+module.exports = {
+    config: {
+        name: "balance",
+        aliases: ["bal", "money", "carteira", "saldo"],
+        version: "1.0",
+        author: "SeuNome",
+        countDown: 5,
+        role: 0,
+        description: {
+            pt: "Veja seu saldo"
+        },
+        category: "economy",
+        guide: {
+            pt: "   {pn}: Ver seu saldo\n   {pn} @tag: Ver saldo de alguém"
+        }
+    },
+
+    onStart: async function ({ message, event, args }) {
+        const { senderID, mentions } = event;
+        const userId = parseInt(senderID);
+
+        // Carrega os dados
+        let data = loadData();
+
+        // 🔥 GARANTE QUE O USUÁRIO EXISTE
+        data = ensureUser(data, userId);
+
+        // 🔥 SE TIVER MENÇÃO, MOSTRA O SALDO DA PESSOA
+        if (Object.keys(mentions).length > 0) {
+            const targetId = Object.keys(mentions)[0];
+            const targetIdInt = parseInt(targetId);
+            const targetName = mentions[targetId].replace(/@/g, '').trim();
+
+            // Garante que o alvo existe
+            data = ensureUser(data, targetIdInt);
+
+            const money = data.users[targetIdInt].money || 0;
+            
+            return message.reply(`💰 **${targetName}** tem **${money}$**`);
+        }
+
+        // 🔥 MOSTRA PRÓPRIO SALDO
+        const money = data.users[userId].money || 0;
+
+        return message.reply(`💰 **Seu saldo:** ${money}$`);
+    }
 };
