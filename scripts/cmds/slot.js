@@ -1,20 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
-// Caminho do arquivo de dados
+// 🔥 ARQUIVO DE DADOS
 const DATA_FILE = path.join(__dirname, 'slot_data.json');
 
-// 🔥 FUNÇÕES PRA MANIPULAR O JSON
 const loadData = () => {
     try {
         if (fs.existsSync(DATA_FILE)) {
             const raw = fs.readFileSync(DATA_FILE, 'utf8');
             return JSON.parse(raw);
         }
-    } catch (e) {
-        console.log('Erro ao ler dados, criando novo arquivo');
-    }
-    // Dados padrão
+    } catch (e) {}
     return {
         users: {},
         global: {
@@ -29,202 +25,235 @@ const saveData = (data) => {
     try {
         fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
         return true;
-    } catch (e) {
-        console.error('Erro ao salvar dados:', e);
-        return false;
-    }
+    } catch (e) { return false; }
 };
 
-// 🔥 FUNÇÃO PRA GARANTIR QUE O USUÁRIO EXISTE
 const ensureUser = (data, userId) => {
     if (!data.users[userId]) {
         data.users[userId] = {
-            money: 10000,
+            money: 0,
             slot_wins: 0,
             slot_losses: 0,
             slot_total_bet: 0,
             slot_biggest_win: 0,
-            name: `User_${userId}`
+            slot_last_play: 0
         };
         saveData(data);
     }
     return data;
 };
 
+// 🔥 SÍMBOLOS DA MÁQUINA (mais variados)
+const SYMBOLS = {
+    COMMON: ['🍒', '🍋', '🍊', '🍇', '🍉', '🍓', '🍑', '🥝'],
+    RARE: ['⭐', '🎰', '🔔', '💎'],
+    ULTRA_RARE: ['7️⃣', '👑']
+};
+
+// 🔥 FUNÇÃO QUE SIMULA A ROLAGEM DOS SÍMBOLOS
+const spinReels = () => {
+    const allSymbols = [...SYMBOLS.COMMON, ...SYMBOLS.RARE, ...SYMBOLS.ULTRA_RARE];
+    return [
+        allSymbols[Math.floor(Math.random() * allSymbols.length)],
+        allSymbols[Math.floor(Math.random() * allSymbols.length)],
+        allSymbols[Math.floor(Math.random() * allSymbols.length)]
+    ];
+};
+
+// 🔥 FUNÇÃO QUE VERIFICA SE TEM COMBINAÇÃO VENCEDORA
+const checkWin = (result) => {
+    const [a, b, c] = result;
+    
+    // 3 IGUAIS
+    if (a === b && b === c) {
+        // ULTRA RARE
+        if (a === '👑') return { multiplier: 25, type: '👑 JACKPOT ROYAL!' };
+        if (a === '7️⃣') return { multiplier: 15, type: '7️⃣ SETE DA SORTE!' };
+        // RARE
+        if (a === '💎') return { multiplier: 10, type: '💎 DIAMANTE!' };
+        if (a === '⭐') return { multiplier: 8, type: '⭐ ESTRELA!' };
+        if (a === '🎰') return { multiplier: 6, type: '🎰 CAÇA-NÍQUEIS!' };
+        if (a === '🔔') return { multiplier: 5, type: '�BE SINO!' };
+        // COMMON
+        return { multiplier: 3, type: `🍀 ${a} TRIPLO!` };
+    }
+    
+    // 2 IGUAIS
+    if (a === b || b === c || a === c) {
+        return { multiplier: 1.5, type: '👍 DUPLO!' };
+    }
+    
+    return { multiplier: 0, type: '💀 PERDEU!' };
+};
+
 module.exports = {
     config: {
         name: "slot",
         aliases: ["caçaniqueis", "roleta"],
-        version: "2.3",
+        version: "3.2",
         author: "SeuNome",
         countDown: 5,
         role: 0,
         description: {
-            pt: "Jogue na máquina caça-níqueis e ganhe dinheiro!"
+            pt: "Jogue na máquina caça-níqueis!"
         },
         category: "economy",
         guide: {
-            pt: "   {pn} [valor]: Aposte um valor para jogar\n   {pn} ranking: Veja o ranking dos maiores ganhadores\n   {pn} reset: Reseta todos os dados (adm apenas)"
+            pt: "   {pn} [valor]: Aposte um valor\n   {pn} ranking: Ranking dos maiores ganhadores"
         }
     },
 
-    onStart: async function ({ message, usersData, event, args }) {
+    onStart: async function ({ message, event, args }) {
         const { senderID } = event;
         const userId = parseInt(senderID);
         const command = args[0]?.toLowerCase();
 
-        // Carrega os dados
         let data = loadData();
+        data = ensureUser(data, userId);
 
-        // Comando de ranking
+        // Ranking
         if (command === "ranking" || command === "rank") {
             return await this.showRanking({ message, data });
         }
 
-        // Comando de reset (apenas admin)
-        if (command === "reset") {
-            // Verifica se é admin (opcional)
-            const isAdmin = false; // Coloca lógica de admin aqui
-            if (!isAdmin) {
-                return message.reply("❌ | Apenas administradores podem resetar!");
-            }
-            
-            // Reseta tudo
-            fs.writeFileSync(DATA_FILE, JSON.stringify({
-                users: {},
-                global: {
-                    jackpot: 0,
-                    total_bets: 0,
-                    total_payouts: 0
-                }
-            }, null, 2));
-            return message.reply("🔄 | Todos os dados foram resetados!");
-        }
-
-        // Verifica aposta
         const betAmount = parseInt(args[0]);
         if (!betAmount || betAmount <= 0) {
-            return message.reply("🎰 | Aposte um valor válido! Ex: !slot 1000\n📊 | Ou use !slot ranking");
+            return message.reply(`🎰 | APOSTE UM VALOR!\nEx: !slot 1000`);
         }
 
-        // Garante que o usuário existe
-        data = ensureUser(data, userId);
+        const user = data.users[userId];
+        const userMoney = user.money || 0;
 
-        const userData = data.users[userId];
-        const userMoney = userData.money || 10000;
+        // Cooldown 10s
+        const now = Date.now();
+        const lastPlay = user.slot_last_play || 0;
+        const cooldownTime = 10000;
+        
+        if (now - lastPlay < cooldownTime) {
+            const remaining = Math.ceil((cooldownTime - (now - lastPlay)) / 1000);
+            return message.reply(`⏳ | ${remaining}s`); // Mensagem curta
+        }
 
         if (betAmount > userMoney) {
-            return message.reply(`❌ | Você só tem ${userMoney}$, aposta menor!`);
+            return message.reply(`❌ | SALDO: ${userMoney}$`);
         }
 
-        // Dados globais
-        let jackpot = data.global.jackpot || 0;
-        let totalBets = data.global.total_bets || 0;
-        let totalPayouts = data.global.total_payouts || 0;
+        // 🔥 ANIMAÇÃO - Atualiza as frutas várias vezes
+        let slotMessage = `🎰 | 🔄 | 🔄 | 🔄 | 🎰\n⏳ Girando...`;
+        
+        // Envia mensagem inicial
+        const sentMessage = await message.reply(slotMessage);
 
-        // Símbolos do caça-níquel
-        const symbols = ["🍒", "🍋", "🍊", "🍇", "💎", "7️⃣", "⭐", "🎰"];
-        const result = [
-            symbols[Math.floor(Math.random() * symbols.length)],
-            symbols[Math.floor(Math.random() * symbols.length)],
-            symbols[Math.floor(Math.random() * symbols.length)]
-        ];
-
-        let winMultiplier = 0;
-        let winType = "";
-
-        // Verifica combinações
-        if (result[0] === result[1] && result[1] === result[2]) {
-            if (result[0] === "💎") {
-                winMultiplier = 15;
-                winType = "💎 JACKPOT!";
-            } else if (result[0] === "7️⃣") {
-                winMultiplier = 8;
-                winType = "🎰 SETE DA SORTE!";
-            } else if (result[0] === "⭐") {
-                winMultiplier = 5;
-                winType = "⭐ ESTRELA DA FORTUNA!";
-            } else if (result[0] === "🎰") {
-                winMultiplier = 3;
-                winType = "🎰 CAÇA-NÍQUEIS!";
-            } else {
-                winMultiplier = 2.5;
-                winType = "🍀 TRIPLO!";
+        // 🔥 SIMULA ROLAGEM (3 atualizações antes do resultado final)
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        
+        for (let i = 0; i < 3; i++) {
+            const fakeResult = spinReels();
+            const fakeDisplay = `🎰 | ${fakeResult.join(' | ')} | 🎰\n⏳ Girando...`;
+            
+            try {
+                await sentMessage.edit(fakeDisplay);
+            } catch (e) {
+                // Se não conseguir editar, manda nova mensagem
+                await message.reply(fakeDisplay);
             }
-        } else if (result[0] === result[1] || result[1] === result[2] || result[0] === result[2]) {
-            winMultiplier = 1.5;
-            winType = "👍 DUPLO!";
+            
+            await sleep(500 + i * 200); // 500ms, 700ms, 900ms
         }
 
-        // 5% de chance de ativar o jackpot progressivo
-        const jackpotChance = Math.random() < 0.05;
+        // 🔥 RESULTADO FINAL
+        const result = spinReels();
+        const win = checkWin(result);
+        
+        let jackpot = data.global.jackpot || 0;
         let jackpotWon = 0;
-
-        let finalMessage = `🎰 | ${result.join(" | ")} 🎰\n\n`;
         let newMoney = userMoney;
         let winnings = 0;
 
-        if (winMultiplier > 0) {
-            winnings = Math.floor(betAmount * winMultiplier);
-            
-            if (jackpotChance && jackpot > 0) {
-                jackpotWon = Math.floor(jackpot * 0.3);
-                winnings += jackpotWon;
-                winType = "🎰 **JACKPOT PROGRESSIVO!** 🎰";
-                jackpot = Math.floor(jackpot * 0.7);
-            }
+        // Verifica se o resultado tem algum símbolo ultra raro (chance de 5% de ganhar jackpot)
+        const hasUltraRare = result.some(s => SYMBOLS.ULTRA_RARE.includes(s));
+        const jackpotRoll = Math.random();
 
+        // 🔥 DISPLAY FINAL
+        let finalDisplay = `🎰 | ${result.join(' | ')} | 🎰\n\n`;
+
+        if (win.multiplier > 0) {
+            // ✅ GANHOU
+            winnings = Math.floor(betAmount * win.multiplier);
+            
+            // Chance de 5% de ganhar o jackpot se tiver símbolo ultra raro
+            if (jackpot > 0 && hasUltraRare && jackpotRoll < 0.05) {
+                jackpotWon = Math.floor(jackpot * 0.4);
+                winnings += jackpotWon;
+                jackpot = Math.floor(jackpot * 0.6);
+                finalDisplay += `🎰 **JACKPOT! +${jackpotWon}$** 🎰\n`;
+            }
+            
             newMoney = userMoney - betAmount + winnings;
             
-            userData.slot_wins = (userData.slot_wins || 0) + 1;
-            userData.slot_total_bet = (userData.slot_total_bet || 0) + betAmount;
+            // Atualiza estatísticas
+            user.slot_wins = (user.slot_wins || 0) + 1;
+            user.slot_total_bet = (user.slot_total_bet || 0) + betAmount;
             
-            if (winnings > (userData.slot_biggest_win || 0)) {
-                userData.slot_biggest_win = winnings;
+            if (winnings > (user.slot_biggest_win || 0)) {
+                user.slot_biggest_win = winnings;
             }
 
-            totalPayouts += winnings;
+            data.global.total_payouts = (data.global.total_payouts || 0) + winnings;
 
-            finalMessage += `🎉 **${winType}** 🎉\n`;
-            finalMessage += `💰 Prêmio: ${winnings}$ (x${winMultiplier})\n`;
-            if (jackpotWon > 0) {
-                finalMessage += `🎰 Jackpot: +${jackpotWon}$\n`;
+            finalDisplay += `✅ ${win.type}\n`;
+            finalDisplay += `💰 +${winnings}$`;
+            if (win.multiplier > 0) {
+                finalDisplay += ` (x${win.multiplier})`;
             }
-            finalMessage += `💵 Novo saldo: ${newMoney}$`;
+            finalDisplay += `\n💵 ${newMoney}$`;
 
         } else {
-            const jackpotContribution = Math.floor(betAmount * 0.02);
+            // ❌ PERDEU
+            const jackpotContribution = Math.floor(betAmount * 0.03);
             jackpot += jackpotContribution;
             newMoney = userMoney - betAmount;
             
-            userData.slot_losses = (userData.slot_losses || 0) + 1;
-            userData.slot_total_bet = (userData.slot_total_bet || 0) + betAmount;
+            user.slot_losses = (user.slot_losses || 0) + 1;
+            user.slot_total_bet = (user.slot_total_bet || 0) + betAmount;
 
-            finalMessage += `😢 **PERDEU!**\n`;
-            finalMessage += `💸 Perdeu: ${betAmount}$\n`;
-            finalMessage += `🎰 Jackpot aumentou em +${jackpotContribution}$\n`;
-            finalMessage += `💵 Novo saldo: ${newMoney}$`;
+            // Verifica se tem 2 símbolos iguais (quase ganhou)
+            const hasPair = result[0] === result[1] || result[1] === result[2] || result[0] === result[2];
+            
+            finalDisplay += `❌ PERDEU!\n`;
+            finalDisplay += `💸 -${betAmount}$`;
+            if (hasPair && win.multiplier === 0) {
+                finalDisplay += `\n😅 QUASE! Faltou 1`;
+            }
+            finalDisplay += `\n💵 ${newMoney}$`;
+            finalDisplay += `\n🎰 Jackpot: +${jackpotContribution}$`;
         }
 
         // Atualiza dados
-        userData.money = newMoney;
+        user.money = newMoney;
+        user.slot_last_play = now;
         data.global.jackpot = jackpot;
-        data.global.total_bets = totalBets + 1;
-        data.global.total_payouts = totalPayouts;
-
-        // 🔥 SALVA OS DADOS NO ARQUIVO
+        data.global.total_bets = (data.global.total_bets || 0) + 1;
+        
         saveData(data);
 
-        finalMessage += `\n\n🎰 **Jackpot Atual:** ${jackpot}$`;
+        // 🔥 MOSTRA O JACKPOT ATUAL (se tiver mais de 0)
+        if (jackpot > 0) {
+            finalDisplay += `\n\n🎰 **JACKPOT:** ${jackpot}$`;
+        }
 
-        return message.reply(finalMessage);
+        // Atualiza a mensagem final
+        try {
+            await sentMessage.edit(finalDisplay);
+        } catch (e) {
+            await message.reply(finalDisplay);
+        }
     },
 
     showRanking: async function ({ message, data }) {
         const users = data.users;
         const userIds = Object.keys(users);
         
-        // Filtra jogadores
         const players = userIds.filter(id => 
             (users[id].slot_wins > 0 || users[id].slot_losses > 0)
         ).map(id => ({
@@ -233,23 +262,20 @@ module.exports = {
         }));
 
         if (players.length === 0) {
-            return message.reply("📊 | Ninguém jogou ainda! Seja o primeiro!");
+            return message.reply("📊 | NINGUÉM JOGOU AINDA!");
         }
 
-        // Ordena por maior ganho
         const sorted = players.sort((a, b) => 
             (b.slot_biggest_win || 0) - (a.slot_biggest_win || 0)
         );
 
         const top10 = sorted.slice(0, 10);
 
-        let rankingMessage = "🏆 **RANKING DOS MAIORES GANHADORES** 🏆\n\n";
+        let rankingMessage = "🏆 **RANKING** 🏆\n\n";
 
         top10.forEach((player, index) => {
             const name = player.name || `User ${player.userId}`;
-            const wins = player.slot_wins || 0;
             const biggestWin = player.slot_biggest_win || 0;
-            const totalBet = player.slot_total_bet || 0;
             
             let medal = "";
             if (index === 0) medal = "🥇 ";
@@ -258,19 +284,11 @@ module.exports = {
             else medal = `${index + 1}. `;
 
             rankingMessage += `${medal} **${name}**\n`;
-            rankingMessage += `   💰 Maior prêmio: ${biggestWin}$\n`;
-            rankingMessage += `   🎯 Vitórias: ${wins} | Apostado: ${totalBet}$\n\n`;
+            rankingMessage += `   💰 ${biggestWin}$\n`;
         });
 
         const jackpot = data.global.jackpot || 0;
-        const totalBets = data.global.total_bets || 0;
-        const totalPayouts = data.global.total_payouts || 0;
-
-        rankingMessage += `📊 **ESTATÍSTICAS GLOBAIS**\n`;
-        rankingMessage += `🎰 Jackpot: ${jackpot}$\n`;
-        rankingMessage += `🎲 Total de rodadas: ${totalBets}\n`;
-        rankingMessage += `💰 Total pago: ${totalPayouts}$\n`;
-        rankingMessage += `📈 Total de jogadores: ${players.length}`;
+        rankingMessage += `\n🎰 **JACKPOT:** ${jackpot}$`;
 
         return message.reply(rankingMessage);
     }
