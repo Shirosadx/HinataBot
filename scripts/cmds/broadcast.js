@@ -1,11 +1,14 @@
+const fs = require('fs');
+const path = require('path');
+
 module.exports = {
     config: {
         name: "broadcast",
         aliases: ["bc", "anunciar", "avisar"],
-        version: "3.2",
-        author: "SeuNome",
+        version: "3.5",
+        author: "Gersen",
         countDown: 10,
-        role: 0,
+        role: 2,
         description: {
             pt: "Envie uma mensagem estilizada para TODOS os grupos (apenas admins)"
         },
@@ -15,23 +18,20 @@ module.exports = {
         }
     },
 
-    onStart: async function ({ message, event, args, usersData, global }) {
+    onStart: async function ({ api, event, args, message }) {
         try {
-            const { senderID } = event;
+            const { senderID, threadID } = event;
             const userId = parseInt(senderID);
-            const command = args[0]?.toLowerCase();
 
             // 🔥 LISTA DE ADMINS
             const ADMINS = [
                 61590677925905, // Seu ID
             ];
 
-            // 🔥 VERIFICA SE É ADMIN
             if (!ADMINS.includes(userId)) {
-                return message.reply("🔒 | APENAS ADMINS PODEM USAR!");
+                return api.sendMessage("🔒 | APENAS ADMINS PODEM USAR!", threadID);
             }
 
-            // 🔥 FORÇAR ENVIO
             let force = false;
             let messageText = args.join(' ');
 
@@ -41,23 +41,40 @@ module.exports = {
             }
 
             if (!messageText || messageText.trim().length === 0) {
-                return message.reply(`❌ | DIGITE UMA MENSAGEM!\nEx: !bc Olá pessoal!`);
+                return api.sendMessage(`❌ | DIGITE UMA MENSAGEM!\nEx: !bc Olá pessoal!`, threadID);
             }
 
             // 🔥 BUSCA TODOS OS GRUPOS
-            const allThreads = await global.getAllThreads();
-            const groupThreads = allThreads.filter(thread => thread.isGroup === true);
+            let groupThreads = [];
             
+            try {
+                // 🔥 USA O getThreadList DO API (igual ao fakechat)
+                const threadList = await api.getThreadList(100, null, ['INBOX']);
+                groupThreads = threadList.filter(thread => thread.isGroup === true);
+            } catch (e) {
+                console.log('Erro ao buscar grupos via api:', e);
+                
+                // 🔥 FALLBACK: USA O GRUPO ATUAL
+                try {
+                    const currentThread = await api.getThreadInfo(threadID);
+                    if (currentThread && currentThread.isGroup) {
+                        groupThreads = [{ threadID: threadID, name: currentThread.name || 'Grupo Atual' }];
+                    }
+                } catch (err) {
+                    console.log('Erro ao buscar thread atual:', err);
+                }
+            }
+
             if (groupThreads.length === 0) {
-                return message.reply(`📢 | O BOT NÃO ESTÁ EM NENHUM GRUPO!`);
+                return api.sendMessage(`📢 | NENHUM GRUPO ENCONTRADO!\nO bot precisa estar em grupos para enviar broadcast.`, threadID);
             }
 
             if (groupThreads.length < 2 && !force) {
-                return message.reply(`⚠️ | APENAS ${groupThreads.length} GRUPO ENCONTRADO!\nUse !bc -f [mensagem] para forçar o envio.`);
+                return api.sendMessage(`⚠️ | APENAS ${groupThreads.length} GRUPO ENCONTRADO!\nUse !bc -f [mensagem] para forçar o envio.`, threadID);
             }
 
-            // 🔥 NOME FIXO DO ADMIN (SEM BUSCA, SEM ERRO!)
-            const adminName = "Gerson"; // 🔥 COLOCA SEU NOME AQUI
+            // 🔥 NOME FIXO
+            const adminName = "Gersen";
 
             // 🔥 CRIA A MENSAGEM ESTILIZADA
             const finalMessage = `🌸🍒ᏂᎥᏁᎪᏆᎪ ᏰᎧᏖ🍒🌸
@@ -70,26 +87,33 @@ module.exports = {
             let failCount = 0;
             let errorDetails = [];
 
-            const progressMsg = await message.reply(`📤 | ENVIANDO BROADCAST...\n👥 ${groupThreads.length} grupos\n⏳ Aguarde...`);
+            // Mensagem de progresso
+            const progressMsg = await api.sendMessage(`📤 | ENVIANDO BROADCAST...\n👥 ${groupThreads.length} grupos\n⏳ Aguarde...`, threadID);
 
             for (let i = 0; i < groupThreads.length; i++) {
                 const group = groupThreads[i];
+                const groupId = group.threadID;
+                const groupName = group.name || `Grupo ${i + 1}`;
                 
                 try {
-                    await message.send(finalMessage, group.threadID);
+                    // 🔥 USA O sendMessage DO API (igual ao fakechat)
+                    await api.sendMessage(finalMessage, groupId);
                     successCount++;
                     
+                    // Atualiza progresso a cada 3 grupos
                     if (i % 3 === 0 && i > 0) {
                         try {
-                            await progressMsg.edit(`📤 | ENVIANDO BROADCAST...\n✅ ${successCount}/${groupThreads.length} enviados\n⏳ Continuando...`);
+                            await api.editMessage(`📤 | ENVIANDO BROADCAST...\n✅ ${successCount}/${groupThreads.length} enviados\n⏳ Continuando...`, progressMsg.messageID);
                         } catch (e) {}
                     }
 
                 } catch (error) {
                     failCount++;
-                    errorDetails.push(`❌ ${group.name || group.threadID}: ${error.message}`);
+                    errorDetails.push(`❌ ${groupName}: ${error.message}`);
+                    console.error(`Erro ao enviar para grupo ${groupName}:`, error);
                 }
 
+                // 🔥 DELAY PARA NÃO SOBRECARREGAR
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
 
@@ -112,14 +136,14 @@ module.exports = {
             }
 
             try {
-                await progressMsg.edit(finalMsg);
+                await api.editMessage(finalMsg, progressMsg.messageID);
             } catch (e) {
-                await message.reply(finalMsg);
+                await api.sendMessage(finalMsg, threadID);
             }
 
         } catch (error) {
             console.error('Erro no broadcast:', error);
-            return message.reply(`❌ | OPS! DEU RUIM NO BROADCAST!\n💬 ${error.message}`);
+            return api.sendMessage(`❌ | OPS! DEU RUIM NO BROADCAST!\n💬 ${error.message}`, event.threadID);
         }
     }
 };
