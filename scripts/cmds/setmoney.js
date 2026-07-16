@@ -58,7 +58,7 @@ module.exports = {
     config: {
         name: "setmoney",
         aliases: ["setbal", "addmoney", "givemoney"],
-        version: "1.2",
+        version: "1.3",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -78,15 +78,11 @@ module.exports = {
 
             // 🔥 VERIFICA SE É ADMIN
             if (!ADMINS.includes(userId)) {
-                const sent = await message.reply("🔒 | APENAS ADMINS PODEM USAR!");
-                await sent.react('🔒');
-                return;
+                return message.reply("🔒 | APENAS ADMINS PODEM USAR!");
             }
 
             if (args.length < 2) {
-                const sent = await message.reply(`❌ | USE: !setmoney 1000 @user\nOU: !setmoney 1000 61590677925905`);
-                await sent.react('❌');
-                return;
+                return message.reply(`❌ | USE: !setmoney 1000 @user\nOU: !setmoney 1000 61590677925905`);
             }
 
             // 🔥 IDENTIFICA O COMANDO
@@ -100,64 +96,46 @@ module.exports = {
                 targetId = parseInt(Object.keys(mentions)[0]);
                 targetName = mentions[targetId].replace(/@/g, '').trim();
                 
-                // 🔥 PEGA O VALOR (pode estar em args[1] ou args[2])
+                // 🔥 PEGA O VALOR
                 if (command === "add" || command === "+" || command === "remove" || command === "-" || command === "sub") {
-                    // Formato: !setmoney add 100 @user
                     amount = parseInt(args[1]);
                     if (isNaN(amount) || amount < 0) {
-                        const sent = await message.reply(`❌ | VALOR INVÁLIDO! Use números positivos.`);
-                        await sent.react('🤡');
-                        return;
+                        return message.reply(`❌ | VALOR INVÁLIDO! Use números positivos.`);
                     }
                 } else {
-                    // Formato: !setmoney 100 @user
                     amount = parseInt(args[0]);
                     if (isNaN(amount) || amount < 0) {
-                        const sent = await message.reply(`❌ | VALOR INVÁLIDO! Use números positivos.`);
-                        await sent.react('🤡');
-                        return;
+                        return message.reply(`❌ | VALOR INVÁLIDO! Use números positivos.`);
                     }
                 }
             } 
             // 🔥 VERIFICA SE É ID (número)
             else if (!isNaN(args[0]) && args.length >= 2) {
-                // Formato: !setmoney 100 61590677925905
                 const firstArg = parseInt(args[0]);
                 const secondArg = parseInt(args[1]);
                 
-                // 🔥 O PRIMEIRO ARGUMENTO É O VALOR, O SEGUNDO É O ID
-                if (secondArg > 1000000000) { // É um ID de Facebook
+                if (secondArg > 1000000000) {
                     amount = firstArg;
                     targetId = secondArg;
                 } else {
-                    // Tentou usar ID como valor
-                    const sent = await message.reply(`❌ | ID INVÁLIDO! Use um ID válido do Facebook.`);
-                    await sent.react('❌');
-                    return;
+                    return message.reply(`❌ | ID INVÁLIDO! Use um ID válido do Facebook.`);
                 }
             } 
             // 🔥 COMANDO ADD/REMOVE COM ID
             else if ((command === "add" || command === "+" || command === "remove" || command === "-" || command === "sub") && args.length >= 3) {
-                // Formato: !setmoney add 100 61590677925905
                 amount = parseInt(args[1]);
                 targetId = parseInt(args[2]);
                 
                 if (isNaN(amount) || amount < 0) {
-                    const sent = await message.reply(`❌ | VALOR INVÁLIDO! Use números positivos.`);
-                    await sent.react('🤡');
-                    return;
+                    return message.reply(`❌ | VALOR INVÁLIDO! Use números positivos.`);
                 }
             } else {
-                const sent = await message.reply(`❌ | MARQUE ALGUÉM OU COLOQUE O ID!\nEx: !setmoney 1000 @joao\nOU: !setmoney 1000 61590677925905`);
-                await sent.react('❌');
-                return;
+                return message.reply(`❌ | MARQUE ALGUÉM OU COLOQUE O ID!\nEx: !setmoney 1000 @joao\nOU: !setmoney 1000 61590677925905`);
             }
 
             // 🔥 VALIDA O ID
             if (!targetId || targetId < 1000000000) {
-                const sent = await message.reply(`❌ | ID INVÁLIDO! Use um ID válido do Facebook.`);
-                await sent.react('❌');
-                return;
+                return message.reply(`❌ | ID INVÁLIDO! Use um ID válido do Facebook.`);
             }
 
             // 🔥 BUSCA O NOME DO USUÁRIO
@@ -181,31 +159,26 @@ module.exports = {
             if (command === "add" || command === "+") {
                 user.money = currentMoney + amount;
                 saveData(data);
-                responseMsg = `✅ | TRANSFERÊNCIA COMPLETA COM SUCESSO!\n👤 **${targetName}**\n💰 +${amount}$\n💵 Novo saldo: ${user.money}$`;
-                const sent = await message.reply(responseMsg);
-                await sent.react('✅');
+                responseMsg = `✅ | TRANSFERÊNCIA COMPLETA!\n👤 **${targetName}**\n💰 +${amount}$\n💵 Novo saldo: ${user.money}$`;
+                return message.reply(responseMsg);
                 
             } else if (command === "remove" || command === "-" || command === "sub") {
                 const newAmount = Math.max(0, currentMoney - amount);
                 user.money = newAmount;
                 saveData(data);
-                responseMsg = `❌ | REMOVIDO COM SUCESSO!\n👤 **${targetName}**\n💰 -${amount}$\n💵 Novo saldo: ${user.money}$`;
-                const sent = await message.reply(responseMsg);
-                await sent.react('❌');
+                responseMsg = `❌ | REMOVIDO!\n👤 **${targetName}**\n💰 -${amount}$\n💵 Novo saldo: ${user.money}$`;
+                return message.reply(responseMsg);
                 
             } else {
-                // SET (define exatamente o valor)
                 user.money = amount;
                 saveData(data);
-                responseMsg = `🔧 | SALDO DEFINIDO COM SUCESSO!\n👤 **${targetName}**\n💰 Novo saldo: ${user.money}$`;
-                const sent = await message.reply(responseMsg);
-                await sent.react('🔧');
+                responseMsg = `🔧 | SALDO DEFINIDO!\n👤 **${targetName}**\n💰 Novo saldo: ${user.money}$`;
+                return message.reply(responseMsg);
             }
 
         } catch (error) {
             console.error('Erro no setmoney:', error);
-            const sent = await message.reply("❌ | OPS! DEU RUIM NO SETMONEY!");
-            await sent.react('❌');
+            return message.reply(`❌ | OPS! DEU RUIM NO SETMONEY!\n💬 ${error.message}`);
         }
     }
 };
