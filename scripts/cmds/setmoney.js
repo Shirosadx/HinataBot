@@ -28,10 +28,11 @@ const saveData = (data) => {
     } catch (e) { return false; }
 };
 
-const ensureUser = (data, userId) => {
+const ensureUser = (data, userId, name = '') => {
     if (!data.users[userId]) {
         data.users[userId] = {
             money: 0,
+            name: name || `User_${userId}`,
             slot_wins: 0,
             slot_losses: 0,
             slot_total_bet: 0,
@@ -39,11 +40,15 @@ const ensureUser = (data, userId) => {
             slot_last_play: 0
         };
         saveData(data);
+    } else if (name && !data.users[userId].name) {
+        // Se não tiver nome, atualiza
+        data.users[userId].name = name;
+        saveData(data);
     }
     return data;
 };
 
-// 🔥 LISTA DE ADMINS (coloca os IDs aqui)
+// 🔥 LISTA DE ADMINS
 const ADMINS = [
     61590677925905, // Seu ID
     // 123456789, // Outro admin
@@ -53,7 +58,7 @@ module.exports = {
     config: {
         name: "setmoney",
         aliases: ["setbal", "addmoney", "givemoney"],
-        version: "1.0",
+        version: "1.1",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -66,7 +71,7 @@ module.exports = {
         }
     },
 
-    onStart: async function ({ message, event, args }) {
+    onStart: async function ({ message, event, args, usersData }) {
         const { senderID, mentions } = event;
         const userId = parseInt(senderID);
 
@@ -75,51 +80,101 @@ module.exports = {
             return message.reply("❌ | APENAS ADMINS PODEM USAR!");
         }
 
+        if (args.length < 2) {
+            return message.reply(`❌ | USE: !setmoney 1000 @user\nOU: !setmoney add 1000 @user\nOU: !setmoney remove 500 @user`);
+        }
+
         const command = args[0]?.toLowerCase();
-        const amount = parseInt(args[1]);
+        let amount = parseInt(args[1]);
         let targetId = null;
         let targetName = "";
 
         // 🔥 PEGA O ALVO (menção ou ID)
         if (Object.keys(mentions).length > 0) {
+            // TEM MENÇÃO
             targetId = parseInt(Object.keys(mentions)[0]);
             targetName = mentions[targetId].replace(/@/g, '').trim();
-        } else if (args[1] && !isNaN(args[1])) {
+            
+            // Se o comando for "add" ou "remove", o amount pode estar no args[2]
+            if (command === "add" || command === "+" || command === "remove" || command === "-" || command === "sub") {
+                if (args.length > 2) {
+                    amount = parseInt(args[1]);
+                } else {
+                    return message.reply(`❌ | VALOR INVÁLIDO!`);
+                }
+            }
+        } else if (!isNaN(args[1]) && args.length >= 2) {
+            // É UM ID (número)
             targetId = parseInt(args[1]);
+            // Se tiver args[2] e for número, é o valor (caso do add/remove)
+            if (command === "add" || command === "+" || command === "remove" || command === "-" || command === "sub") {
+                if (args.length > 2 && !isNaN(args[2])) {
+                    amount = parseInt(args[2]);
+                }
+            }
         } else {
-            return message.reply(`❌ | USE: !setmoney 1000 @user\nOU: !setmoney 1000 61590677925905`);
+            return message.reply(`❌ | MARQUE ALGUÉM OU COLOQUE O ID!\nEx: !setmoney 1000 @joao\nOU: !setmoney 1000 61590677925905`);
+        }
+
+        if (!targetId) {
+            return message.reply(`❌ | USUÁRIO NÃO ENCONTRADO!`);
         }
 
         if (!amount || amount < 0) {
             return message.reply(`❌ | VALOR INVÁLIDO! Use números positivos.`);
         }
 
-        // Carrega dados
+        // 🔥 BUSCA O NOME DO USUÁRIO PELO ID
+        try {
+            const userInfo = await usersData.get(targetId);
+            if (userInfo && userInfo.name) {
+                targetName = userInfo.name;
+            }
+        } catch (e) {
+            console.log('Erro ao buscar nome:', e);
+        }
+
+        // Se ainda não tem nome, tenta pegar do JSON
         let data = loadData();
-        data = ensureUser(data, targetId);
+        if (data.users[targetId] && data.users[targetId].name) {
+            targetName = data.users[targetId].name;
+        }
+
+        // Se não tem nome, coloca "User_ID"
+        if (!targetName) {
+            targetName = `User_${targetId}`;
+        }
+
+        // Carrega dados
+        data = loadData();
+        data = ensureUser(data, targetId, targetName);
 
         const user = data.users[targetId];
         const currentMoney = user.money || 0;
+
+        let responseMsg = "";
 
         // 🔥 COMANDOS
         if (command === "add" || command === "+") {
             // ADICIONA
             user.money = currentMoney + amount;
             saveData(data);
-            return message.reply(`✅ | **+${amount}$** para **${targetName}**\n💰 Novo saldo: ${user.money}$`);
+            responseMsg = `✅ | TRANSFERÊNCIA COMPLETA COM SUCESSO!\n👤 **${targetName}**\n💰 +${amount}$\n💵 Novo saldo: ${user.money}$`;
             
         } else if (command === "remove" || command === "-" || command === "sub") {
             // REMOVE
             const newAmount = Math.max(0, currentMoney - amount);
             user.money = newAmount;
             saveData(data);
-            return message.reply(`❌ | **-${amount}$** de **${targetName}**\n💰 Novo saldo: ${user.money}$`);
+            responseMsg = `❌ | REMOVIDO COM SUCESSO!\n👤 **${targetName}**\n💰 -${amount}$\n💵 Novo saldo: ${user.money}$`;
             
         } else {
             // SET (define exatamente o valor)
             user.money = amount;
             saveData(data);
-            return message.reply(`🔧 | Saldo de **${targetName}** definido para **${amount}$**`);
+            responseMsg = `🔧 | SALDO DEFINIDO COM SUCESSO!\n👤 **${targetName}**\n💰 Novo saldo: ${user.money}$`;
         }
+
+        return message.reply(responseMsg);
     }
 };
