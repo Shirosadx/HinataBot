@@ -62,7 +62,7 @@ module.exports = {
 
         handleAI: async function ({ api, event, prompt, getLang, commandName }) {
                 try {
-                        api.setMessageReaction("⏳", event.messageID, () => {}, true);
+                        api.setMessageReaction("😪", event.messageID, () => {}, true);
                         
                         const baseUrl = await baseApiUrl();                   
                         const response = await axios.get(`${baseUrl}/api/ai`, {
@@ -73,7 +73,7 @@ module.exports = {
                         });
 
                         const replyText = response.data.response || "No response received.";
-                        api.setMessageReaction("✅", event.messageID, () => {}, true);
+                        api.setMessageReaction("😺", event.messageID, () => {}, true);
 
                         return api.sendMessage(replyText, event.threadID, (error, info) => {
                                 if (!error) {
@@ -86,7 +86,7 @@ module.exports = {
 
                 } catch (err) {
                         console.error("AI Error:", err);
-                        api.setMessageReaction("❌", event.messageID, () => {}, true);
+                        api.setMessageReaction("🤷🏻‍♀️", event.messageID, () => {}, true);
                         const errorMsg = err.response?.data?.error || err.message;
                         return api.sendMessage(getLang("error", errorMsg), event.threadID, event.messageID);
                 }
