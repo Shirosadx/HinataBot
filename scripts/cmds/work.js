@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// 🔥 ARQUIVO DE DADOS (mesmo do slot)
+// 🔥 ARQUIVO DE DADOS
 const DATA_FILE = path.join(__dirname, 'slot_data.json');
 
 const loadData = () => {
@@ -9,7 +9,9 @@ const loadData = () => {
         if (fs.existsSync(DATA_FILE)) {
             const raw = fs.readFileSync(DATA_FILE, 'utf8');
             return JSON.parse(raw);
-        } catch (e) {}
+        }
+    } catch (e) {
+        console.error('Erro ao carregar dados:', e);
     }
     return {
         users: {},
@@ -25,7 +27,10 @@ const saveData = (data) => {
     try {
         fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
         return true;
-    } catch (e) { return false; }
+    } catch (e) {
+        console.error('Erro ao salvar dados:', e);
+        return false;
+    }
 };
 
 const ensureUser = (data, userId, name = '') => {
@@ -38,8 +43,8 @@ const ensureUser = (data, userId, name = '') => {
             slot_total_bet: 0,
             slot_biggest_win: 0,
             slot_last_play: 0,
-            work_count: 0,        // 🔥 QUANTAS VEZES TRABALHOU HOJE
-            work_last_reset: 0    // 🔥 ÚLTIMO RESET DO CONTADOR
+            work_count: 0,
+            work_last_reset: 0
         };
         saveData(data);
     } else if (name && !data.users[userId].name) {
@@ -49,9 +54,8 @@ const ensureUser = (data, userId, name = '') => {
     return data;
 };
 
-// 🔥 LISTA DE TRABALHOS E EVENTOS
+// 🔥 EVENTOS
 const WORK_EVENTS = {
-    // 🔥 EVENTOS POSITIVOS (GANHA DINHEIRO)
     positive: [
         { text: '💻 | Trabalhou como programador freelancer', min: 200, max: 800 },
         { text: '📚 | Deu aula particular de matemática', min: 150, max: 500 },
@@ -65,7 +69,7 @@ const WORK_EVENTS = {
         { text: '📸 | Fez um ensaio fotográfico', min: 250, max: 750 },
         { text: '🧹 | Fez faxina em uma casa', min: 150, max: 400 },
         { text: '🛠️ | Ajudou na construção', min: 200, max: 600 },
-        { text: '🍔 | Trabalhou no McDonald's', min: 100, max: 350 },
+        { text: '🍔 | Trabalhou no McDonald\'s', min: 100, max: 350 },
         { text: '🎮 | Testou jogos como beta tester', min: 180, max: 500 },
         { text: '📊 | Fez planilhas para uma empresa', min: 220, max: 650 },
         { text: '✍️ | Escreveu artigos para um blog', min: 150, max: 450 },
@@ -74,8 +78,6 @@ const WORK_EVENTS = {
         { text: '🚗 | Fez Uber por um dia', min: 180, max: 550 },
         { text: '📦 | Trabalhou no estoque de uma loja', min: 150, max: 400 }
     ],
-
-    // 🔥 EVENTOS NEGATIVOS (PERDE DINHEIRO)
     negative: [
         { text: '😅 | Ensinou mal aos alunos da escola', min: 50, max: 200 },
         { text: '💸 | Perdeu a carteira com dinheiro', min: 100, max: 300 },
@@ -95,9 +97,7 @@ const WORK_EVENTS = {
     ]
 };
 
-// 🔥 FUNÇÃO QUE GERA UM EVENTO ALEATÓRIO
 const getRandomEvent = () => {
-    // 70% chance de evento positivo, 30% negativo
     const isPositive = Math.random() < 0.70;
     
     if (isPositive) {
@@ -115,7 +115,7 @@ module.exports = {
     config: {
         name: "work",
         aliases: ["trabalhar", "job", "trampo"],
-        version: "1.0",
+        version: "1.1",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -143,7 +143,9 @@ module.exports = {
                 if (userInfo && userInfo.name) {
                     userName = userInfo.name;
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error('Erro ao buscar nome:', e);
+            }
 
             data = ensureUser(data, userId, userName);
             const user = data.users[userId];
@@ -153,7 +155,6 @@ module.exports = {
             const lastReset = user.work_last_reset ? new Date(user.work_last_reset).toDateString() : '';
             
             if (today !== lastReset) {
-                // Resetou o dia
                 user.work_count = 0;
                 user.work_last_reset = Date.now();
                 saveData(data);
@@ -187,21 +188,17 @@ module.exports = {
             let msg = '';
 
             if (event.type === 'positive') {
-                // ✅ GANHOU DINHEIRO
                 newMoney += event.amount;
                 msg += `✅ **${event.text}**\n`;
                 msg += `💰 +${event.amount}$\n`;
                 msg += `💵 Novo saldo: ${newMoney}$\n\n`;
                 msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
 
-                // Reação de vitória
                 const sent = await message.reply(msg);
                 await sent.react('✅');
 
             } else {
-                // ❌ PERDEU DINHEIRO
                 if (newMoney < event.amount) {
-                    // Se não tem dinheiro suficiente, perde só o que tem
                     msg += `❌ **${event.text}**\n`;
                     msg += `💸 -${newMoney}$ (não tinha saldo suficiente)\n`;
                     msg += `💵 Novo saldo: 0$\n\n`;
@@ -232,7 +229,7 @@ module.exports = {
 
         } catch (error) {
             console.error('Erro no work:', error);
-            const sent = await message.reply("❌ | OPS! DEU RUIM NO TRABALHO!");
+            const sent = await message.reply("❌ | OPS! DEU RUIM NO TRABALHO!\n💬 " + error.message);
             await sent.react('❌');
         }
     }
