@@ -115,7 +115,7 @@ module.exports = {
     config: {
         name: "work",
         aliases: ["trabalhar", "job", "trampo"],
-        version: "1.1",
+        version: "1.2",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -168,18 +168,14 @@ module.exports = {
                 msg += `⏳ Restantes: ${remaining}\n`;
                 msg += `💰 Saldo: ${user.money || 0}$`;
                 
-                const sent = await message.reply(msg);
-                await sent.react('📊');
-                return;
+                return message.reply(msg);
             }
 
             // 🔥 VERIFICA LIMITE DIÁRIO
             const workCount = user.work_count || 0;
             if (workCount >= 5) {
                 const msg = `⏳ | VOCÊ JÁ TRABALHOU **5 VEZES** HOJE!\n💰 Saldo: ${user.money || 0}$\n🔄 Volte amanhã!`;
-                const sent = await message.reply(msg);
-                await sent.react('⏰');
-                return;
+                return message.reply(msg);
             }
 
             // 🔥 GERA EVENTO ALEATÓRIO
@@ -194,8 +190,7 @@ module.exports = {
                 msg += `💵 Novo saldo: ${newMoney}$\n\n`;
                 msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
 
-                const sent = await message.reply(msg);
-                await sent.react('✅');
+                return message.reply(msg);
 
             } else {
                 if (newMoney < event.amount) {
@@ -205,8 +200,7 @@ module.exports = {
                     msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
                     newMoney = 0;
 
-                    const sent = await message.reply(msg);
-                    await sent.react('💀');
+                    return message.reply(msg);
                 } else {
                     msg += `❌ **${event.text}**\n`;
                     msg += `💸 -${event.amount}$\n`;
@@ -214,8 +208,7 @@ module.exports = {
                     msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
                     newMoney -= event.amount;
 
-                    const sent = await message.reply(msg);
-                    await sent.react('💀');
+                    return message.reply(msg);
                 }
             }
 
@@ -229,8 +222,7 @@ module.exports = {
 
         } catch (error) {
             console.error('Erro no work:', error);
-            const sent = await message.reply("❌ | OPS! DEU RUIM NO TRABALHO!\n💬 " + error.message);
-            await sent.react('❌');
+            return message.reply(`❌ | OPS! DEU RUIM NO TRABALHO!\n💬 ${error.message}`);
         }
     }
 };
