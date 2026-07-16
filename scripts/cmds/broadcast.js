@@ -1,94 +1,203 @@
 const fs = require("fs");
 const path = require("path");
 
+// 🔥 ARQUIVO ÚNICO PARA DADOS
+const DATA_FILE = path.join(__dirname, 'broadcast_data.json');
+
+// 🔥 FUNÇÕES DE MANIPULAÇÃO DE DADOS
+const loadData = () => {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const raw = fs.readFileSync(DATA_FILE, 'utf8');
+            return JSON.parse(raw);
+        }
+    } catch (e) {}
+    return { groups: [] };
+};
+
+const saveData = (data) => {
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        return true;
+    } catch (e) { return false; }
+};
+
+// 🔥 ADICIONA GRUPO AUTOMATICAMENTE
+const addGroup = (groupId, groupName) => {
+    const data = loadData();
+    const exists = data.groups.some(g => g.id === groupId);
+    if (!exists) {
+        data.groups.push({ id: groupId, name: groupName });
+        saveData(data);
+        return true;
+    }
+    return false;
+};
+
 module.exports = {
     config: {
-        name: "savegroups",
-        aliases: ["salvargrupos", "addgroups"],
-        version: "1.0",
+        name: "broadcast",
+        aliases: ["bc", "anunciar", "avisar"],
+        version: "4.0",
         author: "Gerson",
-        countDown: 5,
+        countDown: 10,
         role: 2,
         description: {
-            pt: "Salva todos os grupos que o bot está"
+            pt: "Envia mensagem para TODOS os grupos que o bot está"
         },
         category: "admin",
         guide: {
-            pt: "   {pn}: Salva os grupos\n   {pn} list: Mostra os grupos salvos"
+            pt: "   {pn} [mensagem]: Envia para todos os grupos\n   {pn} list: Mostra grupos salvos\n   {pn} -f [mensagem]: Força envio"
         }
     },
 
-    onStart: async function ({ api, event, args, message }) {
+    // 🔥 EVENTO: Quando o bot entra em um novo grupo
+    onEvent: async function ({ api, event }) {
         try {
-            const { threadID } = event;
+            if (event.logMessageType === "log:subscribe") {
+                const { threadID } = event;
+                const botID = api.getCurrentUserID();
+                
+                // Verifica se o bot foi adicionado
+                if (event.logMessageData.addedParticipants) {
+                    const added = event.logMessageData.addedParticipants.some(p => p.userFbId === botID);
+                    if (added) {
+                        const info = await api.getThreadInfo(threadID);
+                        if (info && info.isGroup) {
+                            const added = addGroup(threadID, info.name || 'Grupo sem nome');
+                            if (added) {
+                                console.log(`✅ Grupo adicionado automaticamente: ${info.name}`);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e) {}
+    },
+
+    onStart: async function ({ api, event, args, message, usersData }) {
+        try {
+            const { senderID, threadID } = event;
+            const userId = parseInt(senderID);
             const command = args[0]?.toLowerCase();
 
-            // 🔥 ARQUIVO ONDE VAI SALVAR
-            const GROUPS_FILE = path.join(__dirname, 'groups_list.json');
+            const ADMINS = [61590677925905];
+            if (!ADMINS.includes(userId)) {
+                return message.reply("🔒 | APENAS ADMINS!");
+            }
 
-            // 🔥 COMANDO LIST
+            // 🔥 CARREGA DADOS
+            let data = loadData();
+            
+            // 🔥 ADICIONA O GRUPO ATUAL SE NÃO EXISTIR
+            try {
+                const info = await api.getThreadInfo(threadID);
+                if (info && info.isGroup) {
+                    const added = addGroup(threadID, info.name || 'Grupo sem nome');
+                    if (added) {
+                        data = loadData(); // Recarrega
+                    }
+                }
+            } catch (e) {}
+
+            // 🔥 COMANDO: LIST
             if (command === "list") {
-                if (!fs.existsSync(GROUPS_FILE)) {
+                if (data.groups.length === 0) {
                     return message.reply("📋 | NENHUM GRUPO SALVO AINDA!");
                 }
-
-                const data = JSON.parse(fs.readFileSync(GROUPS_FILE, 'utf8'));
-                let msg = `📋 **GRUPOS SALVOS**\n\n`;
-                msg += `👥 Total: ${data.groups.length}\n\n`;
-                
+                let msg = `📋 **GRUPOS SALVOS**\n\n👥 Total: ${data.groups.length}\n\n`;
                 data.groups.forEach((g, i) => {
-                    msg += `${i + 1}. **${g.name}**\n`;
-                    msg += `   📌 ID: ${g.id}\n`;
+                    msg += `${i + 1}. **${g.name}**\n   📌 ${g.id}\n\n`;
                 });
-
                 return message.reply(msg);
             }
 
-            // 🔥 BUSCA TODOS OS GRUPOS
-            let groups = [];
-            
+            // 🔥 FORÇAR
+            let force = false;
+            let messageText = args.join(' ');
+
+            if (args[0]?.toLowerCase() === "-f") {
+                force = true;
+                messageText = args.slice(1).join(' ');
+            }
+
+            if (!messageText || messageText.trim().length === 0) {
+                return message.reply(`❌ | DIGITE UMA MENSAGEM!\nEx: !bc Olá pessoal!\n\n📋 Comandos:\n!bc list - Ver grupos\n!bc -f [msg] - Forçar envio`);
+            }
+
+            if (data.groups.length === 0) {
+                return message.reply(`❌ | NENHUM GRUPO SALVO!\nO bot salva automaticamente quando entra em um grupo.`);
+            }
+
+            if (data.groups.length < 2 && !force) {
+                return message.reply(`⚠️ | APENAS ${data.groups.length} GRUPO!\nUse !bc -f [mensagem] para forçar.`);
+            }
+
+            // 🔥 NOME DO ADMIN
+            let adminName = "Gerson";
             try {
-                // Tenta pegar via getThreadList
-                const threadList = await api.getThreadList(500, null, ['INBOX']);
-                groups = threadList.filter(thread => thread.isGroup === true);
-            } catch (e) {
-                console.log('Erro ao buscar grupos:', e);
-            }
+                const userInfo = await usersData.get(userId);
+                if (userInfo && userInfo.name && userInfo.name !== "null") {
+                    adminName = userInfo.name;
+                }
+            } catch (e) {}
 
-            // 🔥 SE NÃO ACHOU, USA O GRUPO ATUAL
-            if (groups.length === 0) {
+            // 🔥 MENSAGEM ESTILIZADA
+            const finalMessage = `🌸🍒ᏂᎥᏁᎪᏆᎪ ᏰᎧᏖ🍒🌸
+       ╰╮✾╭╯╰╮✾╭╯
+ᎧᎳᏁᎬᏒ/ᎠᎾᏁᎾ: ${adminName}
+ᎷᏋᏁᏕᎪᎶᎬᎷ:♰${messageText}♰`;
+
+            // 🔥 ENVIA
+            const initialMsg = `📤 | INICIANDO...\n👥 ${data.groups.length} grupos\n⏳ 0/${data.groups.length}`;
+            const sentMessage = await message.reply(initialMsg);
+
+            let successCount = 0;
+            let failCount = 0;
+            let failedGroups = [];
+
+            for (let i = 0; i < data.groups.length; i++) {
+                const group = data.groups[i];
+                
                 try {
-                    const currentThread = await api.getThreadInfo(threadID);
-                    if (currentThread && currentThread.isGroup) {
-                        groups = [{ 
-                            threadID: threadID, 
-                            name: currentThread.name || 'Grupo Atual' 
-                        }];
-                    }
-                } catch (e) {}
+                    await api.sendMessage(finalMessage, group.id);
+                    successCount++;
+                } catch (error) {
+                    failCount++;
+                    failedGroups.push(group.name);
+                }
+
+                if (i % 2 === 0 || i === data.groups.length - 1) {
+                    try {
+                        const progress = `📤 | ENVIANDO...\n👥 ${data.groups.length} grupos\n✅ ${successCount}/${data.groups.length}\n⏳ ${Math.round((i + 1) / data.groups.length * 100)}%`;
+                        await api.editMessage(progress, sentMessage.messageID);
+                    } catch (e) {}
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 300));
             }
 
-            if (groups.length === 0) {
-                return message.reply("❌ | NENHUM GRUPO ENCONTRADO!");
+            // 🔥 FINAL
+            let finalMsg = `📢 **BROADCAST FINALIZADO!**\n\n`;
+            finalMsg += `✅ ${successCount} enviados\n`;
+            finalMsg += `❌ ${failCount} falhas\n`;
+            finalMsg += `👥 ${data.groups.length} total\n\n`;
+
+            if (failedGroups.length > 0) {
+                finalMsg += `⚠️ FALHAS:\n${failedGroups.map(g => `❌ ${g}`).join('\n')}\n\n`;
             }
 
-            // 🔥 SALVA OS GRUPOS
-            const data = {
-                savedAt: new Date().toISOString(),
-                total: groups.length,
-                groups: groups.map(g => ({
-                    id: g.threadID,
-                    name: g.name || 'Sem nome'
-                }))
-            };
+            finalMsg += failCount === 0 ? `✅ TUDO OK!` : `⚠️ VERIFIQUE OS LOGS.`;
 
-            fs.writeFileSync(GROUPS_FILE, JSON.stringify(data, null, 2));
-
-            return message.reply(`✅ | ${groups.length} GRUPOS SALVOS!\n📁 Arquivo: groups_list.json`);
+            try {
+                await api.editMessage(finalMsg, sentMessage.messageID);
+            } catch (e) {
+                await message.reply(finalMsg);
+            }
 
         } catch (error) {
             console.error('Erro:', error);
-            return message.reply(`❌ | ERRO AO SALVAR GRUPOS!\n💬 ${error.message}`);
+            return message.reply(`❌ | ERRO!\n💬 ${error.message}`);
         }
     }
 };
