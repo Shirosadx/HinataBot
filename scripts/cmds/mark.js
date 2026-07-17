@@ -65,13 +65,13 @@ module.exports = {
     let canvas = createCanvas(baseImage.width, baseImage.height);
     let ctx = canvas.getContext("2d");
     ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    ctx.font = "500 28px Arial";
+    ctx.font = "700 48px Arial";
     ctx.fillStyle = "#000000";
     ctx.textAlign = "start";
-    let fontSize = 70;
+    let fontSize = 100;
     while (ctx.measureText(text).width > 120) {
       fontSize--;
-      ctx.font = `500 ${fontSize}px Arial, sans-serif`;
+      ctx.font = `700 ${fontSize}px Arial, sans-serif`;
     }
     const lines = await this.wrapText(ctx, text, 470);
     ctx.fillText(lines.join("\n"), 15, 75); //comment
