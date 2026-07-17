@@ -1,60 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-
-// 🔥 MESMO ARQUIVO DO SLOT
-const DATA_FILE = path.join(__dirname, 'slot_data.json');
-
-// Carrega os dados (igual ao slot)
-const loadData = () => {
-    try {
-        if (fs.existsSync(DATA_FILE)) {
-            const raw = fs.readFileSync(DATA_FILE, 'utf8');
-            return JSON.parse(raw);
-        }
-    } catch (e) {
-        console.log('Erro ao ler dados, criando novo...');
-    }
-    return {
-        users: {},
-        global: {
-            jackpot: 0,
-            total_bets: 0,
-            total_payouts: 0
-        }
-    };
-};
-
-// Salva os dados (igual ao slot)
-const saveData = (data) => {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-        return true;
-    } catch (e) {
-        console.error('Erro ao salvar dados:', e);
-        return false;
-    }
-};
-
-// 🔥 GARANTE QUE O USUÁRIO EXISTE
-const ensureUser = (data, userId) => {
-    if (!data.users[userId]) {
-        data.users[userId] = {
-            money: 0,
-            slot_wins: 0,
-            slot_losses: 0,
-            slot_total_bet: 0,
-            slot_biggest_win: 0
-        };
-        saveData(data);
-    }
-    return data;
-};
-
 module.exports = {
     config: {
         name: "balance",
         aliases: ["bal", "money", "carteira", "saldo"],
-        version: "1.0",
+        version: "1.2",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -67,33 +15,40 @@ module.exports = {
         }
     },
 
-    onStart: async function ({ message, event, args }) {
-        const { senderID, mentions } = event;
-        const userId = parseInt(senderID);
+    onStart: async function ({ message, event, args, usersData }) {
+        try {
+            const { senderID, mentions } = event;
+            const userId = parseInt(senderID);
 
-        // Carrega os dados
-        let data = loadData();
+            // Garante que o usuário existe
+            const userExists = await usersData.existsSync(userId);
+            if (!userExists) {
+                await usersData.create(userId);
+            }
 
-        // 🔥 GARANTE QUE O USUÁRIO EXISTE
-        data = ensureUser(data, userId);
+            // Se tiver menção
+            if (Object.keys(mentions).length > 0) {
+                const targetId = parseInt(Object.keys(mentions)[0]);
+                const targetName = mentions[targetId].replace(/@/g, '').trim();
+                
+                const targetExists = await usersData.existsSync(targetId);
+                if (!targetExists) {
+                    await usersData.create(targetId);
+                }
+                
+                const money = await usersData.get(targetId, "money") || 0;
+                return message.reply(`💰 **${targetName}** tem **${money}$**`);
+            }
 
-        // 🔥 SE TIVER MENÇÃO, MOSTRA O SALDO DA PESSOA
-        if (Object.keys(mentions).length > 0) {
-            const targetId = Object.keys(mentions)[0];
-            const targetIdInt = parseInt(targetId);
-            const targetName = mentions[targetId].replace(/@/g, '').trim();
-
-            // Garante que o alvo existe
-            data = ensureUser(data, targetIdInt);
-
-            const money = data.users[targetIdInt].money || 0;
+            // Ver próprio saldo
+            const money = await usersData.get(userId, "money") || 0;
+            const name = await usersData.get(userId, "name") || `User_${userId}`;
             
-            return message.reply(`💰 **${targetName}** tem **${money}$**`);
+            return message.reply(`💰 **${name}**\n💵 Saldo: **${money}$**`);
+
+        } catch (error) {
+            console.error('Erro no balance:', error);
+            return message.reply(`❌ | ERRO AO CARREGAR SALDO!\n💬 ${error.message}`);
         }
-
-        // 🔥 MOSTRA PRÓPRIO SALDO
-        const money = data.users[userId].money || 0;
-
-        return message.reply(`💰 **Seu saldo:** ${money}$`);
     }
 };
