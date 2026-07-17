@@ -9,7 +9,7 @@ module.exports = {
     config: {
         name: "setmoney",
         aliases: ["setbal", "addmoney", "givemoney"],
-        version: "1.3",
+        version: "1.4",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -80,10 +80,13 @@ module.exports = {
                 return message.reply(`❌ | ID INVÁLIDO! Use um ID válido do Facebook.`);
             }
 
-            // 🔥 GARANTE QUE O USUÁRIO EXISTE
-            const userExists = await usersData.existsSync(targetId);
+            // 🔥 BUSCA OU CRIA O USUÁRIO
+            let userExists = await usersData.existsSync(targetId);
+            
             if (!userExists) {
+                // 🔥 CRIA O USUÁRIO SE NÃO EXISTIR
                 await usersData.create(targetId);
+                console.log(`✅ Usuário ${targetId} criado com sucesso!`);
             }
 
             // 🔥 BUSCA O NOME
@@ -115,10 +118,6 @@ module.exports = {
                 await usersData.set(targetId, { money: newMoney });
                 responseMsg = `🔧 | SALDO DEFINIDO!\n👤 **${targetName}**\n💰 Novo saldo: ${newMoney}$`;
             }
-
-            // 🔥 VERIFICA SE SALVOU
-            const testMoney = await usersData.get(targetId, "money");
-            console.log(`💰 Saldo de ${targetName} (${targetId}): ${testMoney}$`);
 
             return message.reply(responseMsg);
 
