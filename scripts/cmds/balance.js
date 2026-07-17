@@ -1,67 +1,17 @@
-const { createCanvas, loadImage, registerFont } = require('canvas');
+const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs-extra');
 const path = require('path');
 const axios = require('axios');
 
-// 🔥 CAMINHO DAS FONTES
-const FONTS_DIR = path.join(__dirname, 'cache', 'fonts');
-const FONT_URL = 'https://github.com/google/fonts/raw/main/ofl/playfairdisplay/PlayfairDisplay-Bold.ttf';
-const FONT_URL_2 = 'https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Bold.ttf';
-
-// 🔥 GARANTE QUE A PASTA DE FONTES EXISTE
-if (!fs.existsSync(FONTS_DIR)) {
-    fs.mkdirSync(FONTS_DIR, { recursive: true });
-}
-
-// 🔥 BAIXA AS FONTES (se não existirem)
-async function downloadFonts() {
-    const fontPath1 = path.join(FONTS_DIR, 'PlayfairDisplay-Bold.ttf');
-    const fontPath2 = path.join(FONTS_DIR, 'Poppins-Bold.ttf');
-    
-    if (!fs.existsSync(fontPath1)) {
-        try {
-            const response = await axios.get(FONT_URL, { responseType: 'arraybuffer' });
-            fs.writeFileSync(fontPath1, Buffer.from(response.data));
-            console.log('✅ Fonte PlayfairDisplay baixada!');
-        } catch (e) {
-            console.log('❌ Erro ao baixar fonte PlayfairDisplay');
-        }
-    }
-    
-    if (!fs.existsSync(fontPath2)) {
-        try {
-            const response = await axios.get(FONT_URL_2, { responseType: 'arraybuffer' });
-            fs.writeFileSync(fontPath2, Buffer.from(response.data));
-            console.log('✅ Fonte Poppins baixada!');
-        } catch (e) {
-            console.log('❌ Erro ao baixar fonte Poppins');
-        }
-    }
-    
-    // Registra as fontes
-    try {
-        registerFont(fontPath1, { family: 'PlayfairDisplay' });
-        registerFont(fontPath2, { family: 'Poppins' });
-        console.log('✅ Fontes registradas com sucesso!');
-    } catch (e) {
-        console.log('❌ Erro ao registrar fontes:', e.message);
-    }
-}
-
-// 🔥 CHAMA O DOWNLOAD DAS FONTES
-downloadFonts();
-
-// 🔥 FUNÇÃO PARA TEXTO ESTILIZADO (transforma texto normal em fontes especiais)
-const styleText = (text) => {
+// 🔥 MAPEAMENTO DE CARACTERES ESTILIZADOS → TEXTO NORMAL
+const unstyleText = (text) => {
     const map = {
-        'a': 'Ꭺ', 'b': 'Ᏸ', 'c': 'Ꮯ', 'd': 'Ꭰ', 'e': 'Ꭼ', 'f': 'Ꭰ', 'g': 'Ꮹ',
-        'h': 'Ꮋ', 'i': 'Ꭵ', 'j': 'Ꮰ', 'k': 'Ꮶ', 'l': 'Ꮮ', 'm': 'Ꮇ', 'n': 'Ꮑ',
-        'o': 'Ꮎ', 'p': 'Ꮲ', 'q': 'Ꭴ', 'r': 'Ꮢ', 's': 'Ꮥ', 't': 'Ꮖ', 'u': 'Ꮜ',
-        'v': 'Ꮙ', 'w': 'Ꮃ', 'x': 'Ꮖ', 'y': 'Ꮍ', 'z': 'Ꮓ',
-        'A': 'Ꭺ', 'B': 'Ᏸ', 'C': 'Ꮯ', 'D': 'Ꭰ', 'E': 'Ꭼ', 'F': 'Ꭰ', 'G': 'Ꮹ',
-        'H': 'Ꮋ', 'I': 'Ꭵ', 'J': 'Ꮰ', 'K': 'Ꮶ', 'L': 'Ꮮ', 'M': 'Ꮇ', 'N': 'Ꮑ',
-        'O': 'Ꮎ', 'P': 'Ꮲ', 'Q': 'Ꭴ', 'R': 'Ꮢ', 'S': 'Ꮥ', 'T': 'Ꮖ', 'U': 'Ꮜ',
-        'V': 'Ꮙ', 'W': 'Ꮃ', 'X': 'Ꮖ', 'Y': 'Ꮍ', 'Z': 'Ꮓ'
+        'Ꭺ': 'A', 'Ᏸ': 'B', 'Ꮯ': 'C', 'Ꭰ': 'D', 'Ꭼ': 'E', 
+        'Ꭰ': 'F', 'Ꮹ': 'G', 'Ꮋ': 'H', 'Ꭵ': 'I', 'Ꮰ': 'J',
+        'Ꮶ': 'K', 'Ꮮ': 'L', 'Ꮇ': 'M', 'Ꮑ': 'N', 'Ꮎ': 'O',
+        'Ꮲ': 'P', 'Ꭴ': 'Q', 'Ꮢ': 'R', 'Ꮥ': 'S', 'Ꮖ': 'T',
+        'Ꮜ': 'U', 'Ꮙ': 'V', 'Ꮃ': 'W', 'Ꮖ': 'X', 'Ꮍ': 'Y',
+        'Ꮓ': 'Z'
     };
     return text.split('').map(char => map[char] || char).join('');
 };
@@ -92,7 +42,7 @@ module.exports = {
     config: {
         name: "balance",
         aliases: ["bal", "money", "carteira", "saldo"],
-        version: "3.4",
+        version: "3.8",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -127,7 +77,8 @@ module.exports = {
                 userData = await usersData.get(userId);
             }
 
-            const name = targetName || userData.name || `User_${userId}`;
+            const originalName = targetName || userData.name || `User_${userId}`;
+            const normalName = unstyleText(originalName);
             const money = userData.money || 0;
             const exp = userData.exp || 0;
             const level = getLevel(money);
@@ -157,34 +108,29 @@ module.exports = {
                 rankColor = '#808080';
             }
 
-            // 🔥 APLICA O ESTILO NAS FONTES
-            const styledName = styleText(name);
-            const styledRank = styleText(rankText);
-            const styledLevel = styleText(level.name);
-
-            const pathImg = path.join(__dirname, 'cache', `balance_${userId}.png`);
+            const pathImg = path.join(__dirname, 'cache', `balance_${userId}.png');
             
-            // 🔥 GERA O BANNER
             await generateBanner(
                 pathImg,
-                styledName,
+                normalName,
                 money,
                 exp,
-                { ...level, name: styledLevel },
-                styledRank,
+                level,
+                rankText,
                 rankColor,
                 userId,
-                totalPlayers,
-                name // nome original pro avatar
+                totalPlayers
             );
 
             return api.sendMessage(
                 { 
-                    body: `💰 ${styledName}`,
+                    body: `💰 ${originalName}`,
                     attachment: fs.createReadStream(pathImg) 
                 },
                 threadID,
-                () => fs.unlinkSync(pathImg),
+                () => {
+                    if (fs.existsSync(pathImg)) fs.unlinkSync(pathImg);
+                },
                 messageID
             );
 
@@ -200,9 +146,9 @@ module.exports = {
 };
 
 // 🔥 FUNÇÃO QUE GERA O BANNER
-async function generateBanner(pathImg, name, money, exp, level, rankText, rankColor, userId, totalPlayers, originalName) {
+async function generateBanner(pathImg, name, money, exp, level, rankText, rankColor, userId, totalPlayers) {
     const width = 1000;
-    const height = 350;
+    const height = 400;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
@@ -231,7 +177,8 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
         ctx.fill();
     }
 
-    // 🔥 AVATAR
+    // 🔥 AVATAR (lado esquerdo)
+    let avatarLoaded = false;
     try {
         const avatarUrl = `https://graph.facebook.com/${userId}/picture?width=300&height=300`;
         const avatarResponse = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
@@ -240,13 +187,15 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
         fs.writeFileSync(avatarPath, avatarBuffer);
         
         const avatar = await loadImage(avatarPath);
-        const avatarSize = 130;
-        const avatarX = 60;
+        const avatarSize = 140;
+        const avatarX = 50;
         const avatarY = (height - avatarSize) / 2;
 
+        // Sombra
         ctx.shadowColor = '#4a9eff';
         ctx.shadowBlur = 50;
         
+        // Avatar redondo
         ctx.save();
         ctx.beginPath();
         ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
@@ -256,146 +205,150 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
         ctx.restore();
         ctx.shadowBlur = 0;
 
+        // Borda
         ctx.strokeStyle = '#4a9eff';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2 + 2, 0, Math.PI * 2);
         ctx.stroke();
 
+        // Glow
+        ctx.shadowColor = '#4a9eff';
+        ctx.shadowBlur = 40;
+        ctx.strokeStyle = 'rgba(74, 158, 255, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2 + 10, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        avatarLoaded = true;
         fs.unlinkSync(avatarPath);
 
     } catch (e) {
-        const avatarSize = 130;
-        const avatarX = 60;
+        console.log('❌ Erro ao carregar avatar:', e.message);
+    }
+
+    // 🔥 SE O AVATAR NÃO CARREGOU, DESENHA UM PADRÃO
+    if (!avatarLoaded) {
+        const avatarSize = 140;
+        const avatarX = 50;
         const avatarY = (height - avatarSize) / 2;
         ctx.beginPath();
         ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
         ctx.fillStyle = '#1a2a6c';
         ctx.fill();
         ctx.strokeStyle = '#4a9eff';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.stroke();
         ctx.fillStyle = '#ffffff';
-        ctx.font = '50px Arial';
+        ctx.font = '60px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('👤', avatarX + avatarSize/2, avatarY + avatarSize/2 + 18);
+        ctx.fillText('👤', avatarX + avatarSize/2, avatarY + avatarSize/2 + 20);
     }
 
-    // 🔥 LINHA DIVISÓRIA
-    ctx.strokeStyle = 'rgba(74, 158, 255, 0.1)';
+    // 🔥 LINHA DIVISÓRIA (vertical)
+    ctx.strokeStyle = 'rgba(74, 158, 255, 0.15)';
     ctx.lineWidth = 1;
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
-    ctx.moveTo(220, 30);
-    ctx.lineTo(220, height - 30);
+    ctx.moveTo(230, 30);
+    ctx.lineTo(230, height - 30);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 🔥 INFORMAÇÕES
-    const infoX = 260;
-    let currentY = 55;
+    // 🔥 INFORMAÇÕES (lado direito)
+    const infoX = 270;
+    let currentY = 50;  // 🔥 COMEÇA MAIS EM CIMA
 
-    // 🔥 USA AS FONTES BAIXADAS
-    const fontPath1 = path.join(FONTS_DIR, 'PlayfairDisplay-Bold.ttf');
-    const fontPath2 = path.join(FONTS_DIR, 'Poppins-Bold.ttf');
-    
-    // Tenta usar a fonte baixada, se não tiver, usa Arial
-    let fontFamily = 'Arial';
-    try {
-        if (fs.existsSync(fontPath1)) {
-            fontFamily = 'PlayfairDisplay';
-        } else if (fs.existsSync(fontPath2)) {
-            fontFamily = 'Poppins';
-        }
-    } catch (e) {}
-
-    // NÍVEL
+    // 🔥 NÍVEL (bem no topo)
     ctx.shadowColor = level.color;
     ctx.shadowBlur = 15;
     ctx.fillStyle = level.color;
-    ctx.font = `bold 18px ${fontFamily}, Arial`;
+    ctx.font = `bold 20px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(level.name, infoX, currentY);
     ctx.shadowBlur = 0;
-    currentY += 35;
+    currentY += 45; // 🔥 ESPAÇO
 
-    // NOME (fonte estilizada)
+    // 🔥 NOME
     ctx.shadowColor = '#00e5ff';
     ctx.shadowBlur = 20;
     ctx.fillStyle = '#00e5ff';
-    ctx.font = `bold 38px ${fontFamily}, Arial`;
+    ctx.font = `bold 38px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(name, infoX, currentY);
     ctx.shadowBlur = 0;
-    currentY += 45;
+    currentY += 55; // 🔥 ESPAÇO
 
-    // LINHA
+    // 🔥 LINHA FINA
     ctx.strokeStyle = 'rgba(0, 229, 255, 0.1)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(infoX, currentY - 10);
-    ctx.lineTo(infoX + 400, currentY - 10);
+    ctx.lineTo(infoX + 350, currentY - 10);
     ctx.stroke();
 
-    // RANK
+    // 🔥 RANK (bem no meio)
     ctx.shadowColor = rankColor;
     ctx.shadowBlur = 15;
     ctx.fillStyle = rankColor;
-    ctx.font = `bold 20px ${fontFamily}, Arial`;
+    ctx.font = `bold 22px Arial`;
     ctx.textAlign = 'left';
-    ctx.fillText(rankText, infoX, currentY + 15);
+    ctx.fillText(rankText, infoX, currentY + 20);
     ctx.shadowBlur = 0;
-    currentY += 45;
+    currentY += 55; // 🔥 ESPAÇO
 
-    // DINHEIRO
+    // 🔥 DINHEIRO (formatado)
     const formattedMoney = formatMoney(money);
     const moneyColor = money >= 10000 ? '#FFD700' : money >= 1000 ? '#00ff88' : '#ffffff';
     
     ctx.shadowColor = moneyColor;
     ctx.shadowBlur = 30;
     ctx.fillStyle = moneyColor;
-    ctx.font = `bold 46px ${fontFamily}, Arial`;
+    ctx.font = `bold 48px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(formattedMoney, infoX, currentY);
     ctx.shadowBlur = 0;
-    currentY += 55;
+    currentY += 60; // 🔥 ESPAÇO
 
-    // EXPERIÊNCIA
+    // 🔥 EXPERIÊNCIA
     ctx.fillStyle = '#00d4ff';
-    ctx.font = `16px ${fontFamily}, Arial`;
+    ctx.font = `18px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(`⭐ ${exp} XP`, infoX, currentY);
-    currentY += 30;
+    currentY += 35; // 🔥 ESPAÇO
 
-    // TOTAL JOGADORES
+    // 🔥 TOTAL JOGADORES
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = `13px ${fontFamily}, Arial`;
+    ctx.font = `15px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(`👥 ${totalPlayers} jogadores`, infoX, currentY);
+    currentY += 30;
 
-    // BARRA DE PROGRESSO
+    // 🔥 BARRA DE PROGRESSO
     const barX = infoX;
-    const barY = currentY + 20;
-    const barWidth = 300;
-    const barHeight = 8;
+    const barY = currentY + 5;
+    const barWidth = 280;
+    const barHeight = 10;
     
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    roundRect(ctx, barX, barY, barWidth, barHeight, 4);
+    roundRect(ctx, barX, barY, barWidth, barHeight, 5);
     ctx.fill();
 
     const progress = Math.min((money / 100000) * 100, 100);
     ctx.fillStyle = level.color;
     ctx.shadowColor = level.color;
     ctx.shadowBlur = 10;
-    roundRect(ctx, barX, barY, (progress / 100) * barWidth, barHeight, 4);
+    roundRect(ctx, barX, barY, (progress / 100) * barWidth, barHeight, 5);
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // RODAPÉ
+    // 🔥 RODAPÉ
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    ctx.font = `10px ${fontFamily}, Arial`;
+    ctx.font = `11px Arial`;
     ctx.textAlign = 'right';
-    ctx.fillText('✦ Hinata Bot ✦', width - 20, height - 12);
+    ctx.fillText('✦ Hinata Bot ✦', width - 20, height - 15);
 
     // SALVA A IMAGEM
     const imageBuffer = canvas.toBuffer('image/png');
