@@ -1,8 +1,8 @@
 module.exports = {
     config: {
         name: "top",
-        aliases: ["ranking", "maisricos"],
-        version: "1.2",
+        aliases: ["ranking", "rank"],
+        version: "1.3",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -20,15 +20,22 @@ module.exports = {
             // 🔥 PEGA TODOS OS USUÁRIOS
             const allUsers = await usersData.getAll();
             
+            console.log(`📊 Total de usuários no banco: ${allUsers.length}`);
+            
             // 🔥 FILTRA QUEM TEM DINHEIRO > 0
             const players = allUsers
-                .filter(u => (u.money || 0) > 0)
+                .filter(u => {
+                    const money = u.money || 0;
+                    return money > 0;
+                })
                 .map(u => ({
                     name: u.name || `User_${u.userID}`,
                     userId: u.userID,
                     money: u.money || 0
                 }))
                 .sort((a, b) => b.money - a.money);
+
+            console.log(`💰 Jogadores com dinheiro: ${players.length}`);
 
             if (players.length === 0) {
                 return message.reply("📊 | NINGUÉM TEM DINHEIRO AINDA!");
