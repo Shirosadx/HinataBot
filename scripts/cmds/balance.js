@@ -1,8 +1,9 @@
 const { createCanvas, loadImage } = require('canvas');
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
+const axios = require('axios');
 
-// 🔥 FORMATAR DINHEIRO
+// 🔥 FORMATAR DINHEIRO (1k, 1M, 1B, 1T)
 const formatMoney = (num) => {
     if (!num) return '0$';
     const n = parseInt(num);
@@ -13,6 +14,7 @@ const formatMoney = (num) => {
     return (n / 1000000000000).toFixed(1) + 'T$';
 };
 
+// 🔥 NÍVEL
 const getLevel = (money) => {
     if (money < 100) return { name: '😴 Pobre', color: '#808080' };
     if (money < 500) return { name: '📚 Novato', color: '#4CAF50' };
@@ -27,12 +29,12 @@ module.exports = {
     config: {
         name: "balance",
         aliases: ["bal", "money", "carteira", "saldo"],
-        version: "3.2",
+        version: "3.3",
         author: "SeuNome",
         countDown: 5,
         role: 0,
         description: {
-            pt: "Veja seu saldo em banner"
+            pt: "Veja seu saldo em banner personalizado"
         },
         category: "economy",
         guide: {
@@ -40,17 +42,19 @@ module.exports = {
         }
     },
 
-    onStart: async function ({ message, event, args, usersData, api }) {
+    onStart: async function ({ api, event, args, usersData }) {
         try {
-            const { senderID, mentions } = event;
+            const { senderID, mentions, threadID, messageID } = event;
             let userId = parseInt(senderID);
             let targetName = "";
 
+            // 🔥 SE TIVER MENÇÃO
             if (Object.keys(mentions).length > 0) {
                 userId = parseInt(Object.keys(mentions)[0]);
                 targetName = mentions[userId].replace(/@/g, '').trim();
             }
 
+            // 🔥 CRIA OU BUSCA USUÁRIO
             let userData = await usersData.get(userId);
             if (!userData) {
                 await usersData.set(userId, {
@@ -67,7 +71,7 @@ module.exports = {
             const exp = userData.exp || 0;
             const level = getLevel(money);
 
-            // RANK
+            // 🔥 RANK
             const allUsers = await usersData.getAll();
             const sorted = allUsers
                 .filter(u => (u.money || 0) > 0)
@@ -92,35 +96,46 @@ module.exports = {
                 rankColor = '#808080';
             }
 
-            const avatarUrl = `https://graph.facebook.com/${userId}/picture?width=300&height=300`;
-
-            // 🔥 GERA O BANNER E RETORNA O BUFFER
-            const imageBuffer = await generateBanner(
+            // 🔥 CAMINHO DA IMAGEM
+            const pathImg = path.join(__dirname, 'cache', `balance_${userId}.png`);
+            
+            // 🔥 GERA O BANNER
+            await generateBanner(
+                pathImg,
                 name,
                 money,
                 exp,
                 level,
                 rankText,
                 rankColor,
-                avatarUrl,
+                userId,
                 totalPlayers
             );
 
-            // 🔥 ENVIA A IMAGEM COMO ATTACHMENT (stream)
-            await message.reply({
-                body: `💰 **${name}**`,
-                attachment: imageBuffer  // 🔥 BUFFER DIRETO
-            });
+            // 🔥 ENVIA A IMAGEM
+            return api.sendMessage(
+                { 
+                    body: `💰 **${name}**`,
+                    attachment: fs.createReadStream(pathImg) 
+                },
+                threadID,
+                () => fs.unlinkSync(pathImg),
+                messageID
+            );
 
         } catch (error) {
             console.error('Erro no balance:', error);
-            return message.reply(`❌ | ERRO: ${error.message}`);
+            return api.sendMessage(
+                `❌ | ERRO: ${error.message}`,
+                event.threadID,
+                event.messageID
+            );
         }
     }
 };
 
-// 🔥 FUNÇÃO QUE GERA O BANNER E RETORNA BUFFER
-async function generateBanner(name, money, exp, level, rankText, rankColor, avatarUrl, totalPlayers) {
+// 🔥 FUNÇÃO QUE GERA O BANNER (SALVA EM ARQUIVO)
+async function generateBanner(pathImg, name, money, exp, level, rankText, rankColor, userId, totalPlayers) {
     const width = 1000;
     const height = 350;
     const canvas = createCanvas(width, height);
@@ -151,9 +166,15 @@ async function generateBanner(name, money, exp, level, rankText, rankColor, avat
         ctx.fill();
     }
 
-    // 🔥 AVATAR
+    // 🔥 AVATAR (baixa da internet)
     try {
-        const avatar = await loadImage(avatarUrl);
+        const avatarUrl = `https://graph.facebook.com/${userId}/picture?width=300&height=300`;
+        const avatarResponse = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
+        const avatarBuffer = Buffer.from(avatarResponse.data, 'utf-8');
+        const avatarPath = path.join(__dirname, 'cache', `avatar_${userId}.png`);
+        fs.writeFileSync(avatarPath, avatarBuffer);
+        
+        const avatar = await loadImage(avatarPath);
         const avatarSize = 130;
         const avatarX = 60;
         const avatarY = (height - avatarSize) / 2;
@@ -176,7 +197,11 @@ async function generateBanner(name, money, exp, level, rankText, rankColor, avat
         ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2 + 2, 0, Math.PI * 2);
         ctx.stroke();
 
+        // Deleta o avatar temporário
+        fs.unlinkSync(avatarPath);
+
     } catch (e) {
+        // Fallback se não baixar avatar
         const avatarSize = 130;
         const avatarX = 60;
         const avatarY = (height - avatarSize) / 2;
@@ -295,8 +320,9 @@ async function generateBanner(name, money, exp, level, rankText, rankColor, avat
     ctx.textAlign = 'right';
     ctx.fillText('✦ Hinata Bot ✦', width - 20, height - 12);
 
-    // 🔥 RETORNA O BUFFER (NÃO SALVA EM ARQUIVO)
-    return canvas.toBuffer('image/png');
+    // 🔥 SALVA A IMAGEM
+    const imageBuffer = canvas.toBuffer('image/png');
+    fs.writeFileSync(pathImg, imageBuffer);
 }
 
 // 🔥 FUNÇÃO ROUND RECT
