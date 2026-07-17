@@ -1,10 +1,8 @@
-const moment = require("moment-timezone");
-
 module.exports = {
     config: {
         name: "slot",
-        aliases: ["caçaniqueis", "roleta"],  // 🔥 CORRIGIDO
-        version: "3.3",
+        aliases: ["caçaniqueis", "roleta"],
+        version: "3.4",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -23,10 +21,16 @@ module.exports = {
             const userId = parseInt(senderID);
             const command = args[0]?.toLowerCase();
 
-            // 🔥 VERIFICA SE O USUÁRIO EXISTE
-            const userExists = await usersData.existsSync(userId);
-            if (!userExists) {
-                await usersData.create(userId);
+            // 🔥 CRIA OU BUSCA O USUÁRIO
+            let userData = await usersData.get(userId);
+            if (!userData) {
+                await usersData.set(userId, {
+                    money: 0,
+                    exp: 0,
+                    name: `User_${userId}`,
+                    data: {}
+                });
+                userData = await usersData.get(userId);
             }
 
             // 🔥 RANKING
@@ -47,7 +51,6 @@ module.exports = {
             let money = await usersData.get(userId, "money") || 0;
             let slotWins = await usersData.get(userId, "data.slot_wins") || 0;
             let slotLosses = await usersData.get(userId, "data.slot_losses") || 0;
-            let slotTotalBet = await usersData.get(userId, "data.slot_total_bet") || 0;
             let slotBiggestWin = await usersData.get(userId, "data.slot_biggest_win") || 0;
             let slotLastPlay = await usersData.get(userId, "data.slot_last_play") || 0;
 
@@ -73,13 +76,10 @@ module.exports = {
             let msg = '';
 
             if (win.multiplier > 0) {
-                // ✅ GANHOU
                 winnings = Math.floor(betAmount * win.multiplier);
                 newMoney += winnings - betAmount;
                 
-                // Atualiza estatísticas
                 slotWins += 1;
-                slotTotalBet += betAmount;
                 if (winnings > slotBiggestWin) {
                     slotBiggestWin = winnings;
                 }
@@ -90,13 +90,9 @@ module.exports = {
                 msg += `💵 ${newMoney}$`;
 
             } else {
-                // ❌ PERDEU
                 newMoney -= betAmount;
-                
                 slotLosses += 1;
-                slotTotalBet += betAmount;
 
-                // Verifica se teve 2 iguais (quase ganhou)
                 const hasPair = result[0] === result[1] || result[1] === result[2] || result[0] === result[2];
 
                 msg += `🎰 | ${result.join(' | ')} | 🎰\n\n`;
@@ -108,17 +104,15 @@ module.exports = {
                 msg += `\n💵 ${newMoney}$`;
             }
 
-            // 🔥 ATUALIZA DADOS NO DATABASE
+            // 🔥 SALVA TUDO DE UMA VEZ
             await usersData.set(userId, {
                 money: newMoney,
                 "data.slot_wins": slotWins,
                 "data.slot_losses": slotLosses,
-                "data.slot_total_bet": slotTotalBet,
                 "data.slot_biggest_win": slotBiggestWin,
                 "data.slot_last_play": now
             });
 
-            // 🔥 MOSTRA ESTATÍSTICAS
             msg += `\n\n🎯 Vitórias: ${slotWins} | Derrotas: ${slotLosses}`;
 
             return message.reply(msg);
@@ -129,12 +123,10 @@ module.exports = {
         }
     },
 
-    // 🔥 RANKING
     showRanking: async function ({ message, usersData }) {
         try {
             const allUsers = await usersData.getAll();
             
-            // Filtra quem jogou slot
             const players = allUsers
                 .filter(u => (u.data?.slot_wins || 0) > 0 || (u.data?.slot_losses || 0) > 0)
                 .map(u => ({
@@ -169,7 +161,7 @@ module.exports = {
     }
 };
 
-// 🔥 SÍMBOLOS E FUNÇÕES
+// 🔥 SÍMBOLOS
 const SYMBOLS = {
     COMMON: ['🍒', '🍋', '🍊', '🍇', '🍉', '🍓', '🍑', '🥝'],
     RARE: ['⭐', '🎰', '🔔', '💎'],
