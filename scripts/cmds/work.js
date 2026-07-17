@@ -1,57 +1,152 @@
-const fs = require('fs');
-const path = require('path');
+const moment = require("moment-timezone");
 
-// 🔥 ARQUIVO DE DADOS
-const DATA_FILE = path.join(__dirname, 'slot_data.json');
-
-const loadData = () => {
-    try {
-        if (fs.existsSync(DATA_FILE)) {
-            const raw = fs.readFileSync(DATA_FILE, 'utf8');
-            return JSON.parse(raw);
+module.exports = {
+    config: {
+        name: "work",
+        aliases: ["trabalhar", "job", "trampo"],
+        version: "1.6",
+        author: "SeuNome",
+        countDown: 5,
+        role: 0,
+        description: {
+            pt: "Trabalhe para ganhar moedas e experiência (5x por dia)"
+        },
+        category: "economy",
+        guide: {
+            pt: "   {pn}: Trabalhe e ganhe dinheiro\n   {pn} info: Veja quantas vezes trabalhou hoje"
         }
-    } catch (e) {
-        console.error('Erro ao carregar dados:', e);
-    }
-    return {
-        users: {},
-        global: {
-            jackpot: 0,
-            total_bets: 0,
-            total_payouts: 0
+    },
+
+    onStart: async function ({ args, message, event, usersData }) {
+        try {
+            const { senderID } = event;
+            const userId = parseInt(senderID);
+            const command = args[0]?.toLowerCase();
+
+            // 🔥 VERIFICA SE O USUÁRIO EXISTE
+            const userExists = await usersData.existsSync(userId);
+            if (!userExists) {
+                await usersData.create(userId);
+            }
+
+            // 🔥 COMANDO INFO
+            if (command === "info" || command === "status") {
+                const workCount = await usersData.get(userId, "data.work_count") || 0;
+                const workLastReset = await usersData.get(userId, "data.work_last_reset") || 0;
+                const money = await usersData.get(userId, "money") || 0;
+                const exp = await usersData.get(userId, "exp") || 0;
+
+                const today = new Date().toDateString();
+                const lastReset = workLastReset ? new Date(workLastReset).toDateString() : '';
+                
+                let count = workCount;
+                if (today !== lastReset) {
+                    count = 0;
+                }
+
+                const remaining = Math.max(0, 5 - count);
+                let msg = `📊 **SEU TRABALHO**\n\n`;
+                msg += `💼 Trabalhos hoje: ${count}/5\n`;
+                msg += `⏳ Restantes: ${remaining}\n`;
+                msg += `💰 Moedas: ${money}$\n`;
+                msg += `⭐ Experiência: ${exp} XP\n`;
+                
+                return message.reply(msg);
+            }
+
+            // 🔥 PEGA DADOS DO USUÁRIO
+            let workCount = await usersData.get(userId, "data.work_count") || 0;
+            let workLastReset = await usersData.get(userId, "data.work_last_reset") || 0;
+            let money = await usersData.get(userId, "money") || 0;
+            let exp = await usersData.get(userId, "exp") || 0;
+
+            // 🔥 VERIFICA SE O DIA RESETOU
+            const today = new Date().toDateString();
+            const lastReset = workLastReset ? new Date(workLastReset).toDateString() : '';
+            
+            if (today !== lastReset) {
+                workCount = 0;
+                workLastReset = Date.now();
+                await usersData.set(userId, {
+                    "data.work_count": 0,
+                    "data.work_last_reset": workLastReset
+                });
+            }
+
+            // 🔥 VERIFICA LIMITE DIÁRIO
+            if (workCount >= 5) {
+                const msg = `⏳ | VOCÊ JÁ TRABALHOU **5 VEZES** HOJE!\n💰 Moedas: ${money}$\n⭐ XP: ${exp}\n🔄 Volte amanhã!`;
+                return message.reply(msg);
+            }
+
+            // 🔥 GERA EVENTO ALEATÓRIO
+            const eventWork = getRandomEvent();
+            let newMoney = money;
+            let newExp = exp;
+            let msg = '';
+
+            if (eventWork.type === 'positive') {
+                const expGain = Math.floor(eventWork.amount * 0.2);
+                newMoney += eventWork.amount;
+                newExp += expGain;
+                
+                await usersData.set(userId, {
+                    money: newMoney,
+                    exp: newExp
+                });
+                
+                msg += `✅ **${eventWork.text}**\n`;
+                msg += `💰 +${eventWork.amount}$\n`;
+                msg += `⭐ +${expGain} XP\n`;
+                msg += `💵 Saldo: ${newMoney}$ | XP: ${newExp}\n\n`;
+                msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
+
+            } else {
+                const expGain = Math.floor(eventWork.amount * 0.1);
+                newExp += expGain;
+                
+                if (newMoney < eventWork.amount) {
+                    const lostAmount = newMoney;
+                    await usersData.set(userId, {
+                        money: 0,
+                        exp: newExp
+                    });
+                    newMoney = 0;
+                    
+                    msg += `❌ **${eventWork.text}**\n`;
+                    msg += `💸 -${lostAmount}$ (não tinha saldo suficiente)\n`;
+                    msg += `⭐ +${expGain} XP\n`;
+                    msg += `💵 Saldo: 0$ | XP: ${newExp}\n\n`;
+                    msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
+                } else {
+                    newMoney -= eventWork.amount;
+                    
+                    await usersData.set(userId, {
+                        money: newMoney,
+                        exp: newExp
+                    });
+                    
+                    msg += `❌ **${eventWork.text}**\n`;
+                    msg += `💸 -${eventWork.amount}$\n`;
+                    msg += `⭐ +${expGain} XP\n`;
+                    msg += `💵 Saldo: ${newMoney}$ | XP: ${newExp}\n\n`;
+                    msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
+                }
+            }
+
+            // 🔥 ATUALIZA CONTADOR
+            await usersData.set(userId, {
+                "data.work_count": workCount + 1,
+                "data.work_last_reset": workLastReset
+            });
+
+            return message.reply(msg);
+
+        } catch (error) {
+            console.error('Erro no work:', error);
+            return message.reply(`❌ | OPS! DEU RUIM NO TRABALHO!\n💬 ${error.message}`);
         }
-    };
-};
-
-const saveData = (data) => {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-        return true;
-    } catch (e) {
-        console.error('Erro ao salvar dados:', e);
-        return false;
     }
-};
-
-const ensureUser = (data, userId, name = '') => {
-    if (!data.users[userId]) {
-        data.users[userId] = {
-            money: 0,
-            name: name || `User_${userId}`,
-            slot_wins: 0,
-            slot_losses: 0,
-            slot_total_bet: 0,
-            slot_biggest_win: 0,
-            slot_last_play: 0,
-            work_count: 0,
-            work_last_reset: 0
-        };
-        saveData(data);
-    } else if (name && !data.users[userId].name) {
-        data.users[userId].name = name;
-        saveData(data);
-    }
-    return data;
 };
 
 // 🔥 EVENTOS
@@ -108,121 +203,5 @@ const getRandomEvent = () => {
         const event = WORK_EVENTS.negative[Math.floor(Math.random() * WORK_EVENTS.negative.length)];
         const amount = Math.floor(Math.random() * (event.max - event.min + 1)) + event.min;
         return { type: 'negative', text: event.text, amount };
-    }
-};
-
-module.exports = {
-    config: {
-        name: "work",
-        aliases: ["trabalhar", "job", "trampo"],
-        version: "1.2",
-        author: "SeuNome",
-        countDown: 5,
-        role: 0,
-        description: {
-            pt: "Trabalhe para ganhar moedas (5x por dia)"
-        },
-        category: "economy",
-        guide: {
-            pt: "   {pn}: Trabalhe e ganhe dinheiro\n   {pn} info: Veja quantas vezes trabalhou hoje"
-        }
-    },
-
-    onStart: async function ({ message, event, args, usersData }) {
-        try {
-            const { senderID } = event;
-            const userId = parseInt(senderID);
-            const command = args[0]?.toLowerCase();
-
-            let data = loadData();
-
-            // Busca nome
-            let userName = `User_${userId}`;
-            try {
-                const userInfo = await usersData.get(userId);
-                if (userInfo && userInfo.name) {
-                    userName = userInfo.name;
-                }
-            } catch (e) {
-                console.error('Erro ao buscar nome:', e);
-            }
-
-            data = ensureUser(data, userId, userName);
-            const user = data.users[userId];
-
-            // 🔥 VERIFICA SE O DIA RESETOU
-            const today = new Date().toDateString();
-            const lastReset = user.work_last_reset ? new Date(user.work_last_reset).toDateString() : '';
-            
-            if (today !== lastReset) {
-                user.work_count = 0;
-                user.work_last_reset = Date.now();
-                saveData(data);
-            }
-
-            // 🔥 COMANDO INFO
-            if (command === "info" || command === "status") {
-                const remaining = Math.max(0, 5 - (user.work_count || 0));
-                let msg = `📊 **${userName}**\n\n`;
-                msg += `💼 Trabalhos hoje: ${user.work_count || 0}/5\n`;
-                msg += `⏳ Restantes: ${remaining}\n`;
-                msg += `💰 Saldo: ${user.money || 0}$`;
-                
-                return message.reply(msg);
-            }
-
-            // 🔥 VERIFICA LIMITE DIÁRIO
-            const workCount = user.work_count || 0;
-            if (workCount >= 5) {
-                const msg = `⏳ | VOCÊ JÁ TRABALHOU **5 VEZES** HOJE!\n💰 Saldo: ${user.money || 0}$\n🔄 Volte amanhã!`;
-                return message.reply(msg);
-            }
-
-            // 🔥 GERA EVENTO ALEATÓRIO
-            const event = getRandomEvent();
-            let newMoney = user.money || 0;
-            let msg = '';
-
-            if (event.type === 'positive') {
-                newMoney += event.amount;
-                msg += `✅ **${event.text}**\n`;
-                msg += `💰 +${event.amount}$\n`;
-                msg += `💵 Novo saldo: ${newMoney}$\n\n`;
-                msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
-
-                return message.reply(msg);
-
-            } else {
-                if (newMoney < event.amount) {
-                    msg += `❌ **${event.text}**\n`;
-                    msg += `💸 -${newMoney}$ (não tinha saldo suficiente)\n`;
-                    msg += `💵 Novo saldo: 0$\n\n`;
-                    msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
-                    newMoney = 0;
-
-                    return message.reply(msg);
-                } else {
-                    msg += `❌ **${event.text}**\n`;
-                    msg += `💸 -${event.amount}$\n`;
-                    msg += `💵 Novo saldo: ${newMoney - event.amount}$\n\n`;
-                    msg += `🎯 Trabalhos hoje: ${workCount + 1}/5`;
-                    newMoney -= event.amount;
-
-                    return message.reply(msg);
-                }
-            }
-
-            // 🔥 ATUALIZA DADOS
-            user.money = newMoney;
-            user.work_count = (user.work_count || 0) + 1;
-            if (!user.work_last_reset) {
-                user.work_last_reset = Date.now();
-            }
-            saveData(data);
-
-        } catch (error) {
-            console.error('Erro no work:', error);
-            return message.reply(`❌ | OPS! DEU RUIM NO TRABALHO!\n💬 ${error.message}`);
-        }
     }
 };
