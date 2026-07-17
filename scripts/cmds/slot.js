@@ -3,7 +3,7 @@ const moment = require("moment-timezone");
 module.exports = {
     config: {
         name: "slot",
-        aliases: ["caçaniqueis", "roleta", "roleta"],
+        aliases: ["caçaniqueis", "roleta"],  // 🔥 CORRIGIDO
         version: "3.3",
         author: "SeuNome",
         countDown: 5,
