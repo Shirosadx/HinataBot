@@ -1,96 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-
-// 🔥 ARQUIVO DE DADOS
-const DATA_FILE = path.join(__dirname, 'slot_data.json');
-
-const loadData = () => {
-    try {
-        if (fs.existsSync(DATA_FILE)) {
-            const raw = fs.readFileSync(DATA_FILE, 'utf8');
-            return JSON.parse(raw);
-        }
-    } catch (e) {}
-    return {
-        users: {},
-        global: {
-            jackpot: 0,
-            total_bets: 0,
-            total_payouts: 0
-        }
-    };
-};
-
-const saveData = (data) => {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-        return true;
-    } catch (e) { return false; }
-};
-
-const ensureUser = (data, userId) => {
-    if (!data.users[userId]) {
-        data.users[userId] = {
-            money: 0,
-            slot_wins: 0,
-            slot_losses: 0,
-            slot_total_bet: 0,
-            slot_biggest_win: 0,
-            slot_last_play: 0
-        };
-        saveData(data);
-    }
-    return data;
-};
-
-// 🔥 SÍMBOLOS DA MÁQUINA (mais variados)
-const SYMBOLS = {
-    COMMON: ['🍒', '🍋', '🍊', '🍇', '🍉', '🍓', '🍑', '🥝'],
-    RARE: ['⭐', '🎰', '🔔', '💎'],
-    ULTRA_RARE: ['7️⃣', '👑']
-};
-
-// 🔥 FUNÇÃO QUE SIMULA A ROLAGEM DOS SÍMBOLOS
-const spinReels = () => {
-    const allSymbols = [...SYMBOLS.COMMON, ...SYMBOLS.RARE, ...SYMBOLS.ULTRA_RARE];
-    return [
-        allSymbols[Math.floor(Math.random() * allSymbols.length)],
-        allSymbols[Math.floor(Math.random() * allSymbols.length)],
-        allSymbols[Math.floor(Math.random() * allSymbols.length)]
-    ];
-};
-
-// 🔥 FUNÇÃO QUE VERIFICA SE TEM COMBINAÇÃO VENCEDORA
-const checkWin = (result) => {
-    const [a, b, c] = result;
-    
-    // 3 IGUAIS
-    if (a === b && b === c) {
-        // ULTRA RARE
-        if (a === '👑') return { multiplier: 25, type: '👑 JACKPOT ROYAL!' };
-        if (a === '7️⃣') return { multiplier: 15, type: '7️⃣ SETE DA SORTE!' };
-        // RARE
-        if (a === '💎') return { multiplier: 10, type: '💎 DIAMANTE!' };
-        if (a === '⭐') return { multiplier: 8, type: '⭐ ESTRELA!' };
-        if (a === '🎰') return { multiplier: 6, type: '🎰 CAÇA-NÍQUEIS!' };
-        if (a === '🔔') return { multiplier: 5, type: '�BE SINO!' };
-        // COMMON
-        return { multiplier: 3, type: `🍀 ${a} TRIPLO!` };
-    }
-    
-    // 2 IGUAIS
-    if (a === b || b === c || a === c) {
-        return { multiplier: 1.5, type: '👍 DUPLO!' };
-    }
-    
-    return { multiplier: 0, type: '💀 PERDEU!' };
-};
+const moment = require("moment-timezone");
 
 module.exports = {
     config: {
         name: "slot",
-        aliases: ["caçaniqueis", "roleta"],
-        version: "3.2",
+        aliases: ["caçaniqueis", "roleta", "roleta"],
+        version: "3.3",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -103,193 +17,190 @@ module.exports = {
         }
     },
 
-    onStart: async function ({ message, event, args }) {
-        const { senderID } = event;
-        const userId = parseInt(senderID);
-        const command = args[0]?.toLowerCase();
-
-        let data = loadData();
-        data = ensureUser(data, userId);
-
-        // Ranking
-        if (command === "ranking" || command === "rank") {
-            return await this.showRanking({ message, data });
-        }
-
-        const betAmount = parseInt(args[0]);
-        if (!betAmount || betAmount <= 0) {
-            return message.reply(`🎰 | APOSTE UM VALOR!\nEx: !slot 1000`);
-        }
-
-        const user = data.users[userId];
-        const userMoney = user.money || 0;
-
-        // Cooldown 10s
-        const now = Date.now();
-        const lastPlay = user.slot_last_play || 0;
-        const cooldownTime = 10000;
-        
-        if (now - lastPlay < cooldownTime) {
-            const remaining = Math.ceil((cooldownTime - (now - lastPlay)) / 1000);
-            return message.reply(`⏳ | ${remaining}s`); // Mensagem curta
-        }
-
-        if (betAmount > userMoney) {
-            return message.reply(`❌ | SALDO: ${userMoney}$`);
-        }
-
-        // 🔥 ANIMAÇÃO - Atualiza as frutas várias vezes
-        let slotMessage = `🎰 | 🔄 | 🔄 | 🔄 | 🎰\n⏳ Girando...`;
-        
-        // Envia mensagem inicial
-        const sentMessage = await message.reply(slotMessage);
-
-        // 🔥 SIMULA ROLAGEM (3 atualizações antes do resultado final)
-        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-        
-        for (let i = 0; i < 3; i++) {
-            const fakeResult = spinReels();
-            const fakeDisplay = `🎰 | ${fakeResult.join(' | ')} | 🎰\n⏳ Girando...`;
-            
-            try {
-                await sentMessage.edit(fakeDisplay);
-            } catch (e) {
-                // Se não conseguir editar, manda nova mensagem
-                await message.reply(fakeDisplay);
-            }
-            
-            await sleep(500 + i * 200); // 500ms, 700ms, 900ms
-        }
-
-        // 🔥 RESULTADO FINAL
-        const result = spinReels();
-        const win = checkWin(result);
-        
-        let jackpot = data.global.jackpot || 0;
-        let jackpotWon = 0;
-        let newMoney = userMoney;
-        let winnings = 0;
-
-        // Verifica se o resultado tem algum símbolo ultra raro (chance de 5% de ganhar jackpot)
-        const hasUltraRare = result.some(s => SYMBOLS.ULTRA_RARE.includes(s));
-        const jackpotRoll = Math.random();
-
-        // 🔥 DISPLAY FINAL
-        let finalDisplay = `🎰 | ${result.join(' | ')} | 🎰\n\n`;
-
-        if (win.multiplier > 0) {
-            // ✅ GANHOU
-            winnings = Math.floor(betAmount * win.multiplier);
-            
-            // Chance de 5% de ganhar o jackpot se tiver símbolo ultra raro
-            if (jackpot > 0 && hasUltraRare && jackpotRoll < 0.05) {
-                jackpotWon = Math.floor(jackpot * 0.4);
-                winnings += jackpotWon;
-                jackpot = Math.floor(jackpot * 0.6);
-                finalDisplay += `🎰 **JACKPOT! +${jackpotWon}$** 🎰\n`;
-            }
-            
-            newMoney = userMoney - betAmount + winnings;
-            
-            // Atualiza estatísticas
-            user.slot_wins = (user.slot_wins || 0) + 1;
-            user.slot_total_bet = (user.slot_total_bet || 0) + betAmount;
-            
-            if (winnings > (user.slot_biggest_win || 0)) {
-                user.slot_biggest_win = winnings;
-            }
-
-            data.global.total_payouts = (data.global.total_payouts || 0) + winnings;
-
-            finalDisplay += `✅ ${win.type}\n`;
-            finalDisplay += `💰 +${winnings}$`;
-            if (win.multiplier > 0) {
-                finalDisplay += ` (x${win.multiplier})`;
-            }
-            finalDisplay += `\n💵 ${newMoney}$`;
-
-        } else {
-            // ❌ PERDEU
-            const jackpotContribution = Math.floor(betAmount * 0.03);
-            jackpot += jackpotContribution;
-            newMoney = userMoney - betAmount;
-            
-            user.slot_losses = (user.slot_losses || 0) + 1;
-            user.slot_total_bet = (user.slot_total_bet || 0) + betAmount;
-
-            // Verifica se tem 2 símbolos iguais (quase ganhou)
-            const hasPair = result[0] === result[1] || result[1] === result[2] || result[0] === result[2];
-            
-            finalDisplay += `❌ PERDEU!\n`;
-            finalDisplay += `💸 -${betAmount}$`;
-            if (hasPair && win.multiplier === 0) {
-                finalDisplay += `\n😅 QUASE! Faltou 1`;
-            }
-            finalDisplay += `\n💵 ${newMoney}$`;
-            finalDisplay += `\n🎰 Jackpot: +${jackpotContribution}$`;
-        }
-
-        // Atualiza dados
-        user.money = newMoney;
-        user.slot_last_play = now;
-        data.global.jackpot = jackpot;
-        data.global.total_bets = (data.global.total_bets || 0) + 1;
-        
-        saveData(data);
-
-        // 🔥 MOSTRA O JACKPOT ATUAL (se tiver mais de 0)
-        if (jackpot > 0) {
-            finalDisplay += `\n\n🎰 **JACKPOT:** ${jackpot}$`;
-        }
-
-        // Atualiza a mensagem final
+    onStart: async function ({ message, event, args, usersData }) {
         try {
-            await sentMessage.edit(finalDisplay);
-        } catch (e) {
-            await message.reply(finalDisplay);
+            const { senderID } = event;
+            const userId = parseInt(senderID);
+            const command = args[0]?.toLowerCase();
+
+            // 🔥 VERIFICA SE O USUÁRIO EXISTE
+            const userExists = await usersData.existsSync(userId);
+            if (!userExists) {
+                await usersData.create(userId);
+            }
+
+            // 🔥 RANKING
+            if (command === "ranking" || command === "rank") {
+                return await this.showRanking({ message, usersData });
+            }
+
+            const betAmount = parseInt(args[0]);
+            if (!betAmount || betAmount <= 0) {
+                return message.reply(`🎰 | APOSTE UM VALOR!\nEx: !slot 1000`);
+            }
+
+            if (betAmount < 10) {
+                return message.reply(`❌ | APOSTA MÍNIMA: 10$`);
+            }
+
+            // 🔥 PEGA DADOS DO USUÁRIO
+            let money = await usersData.get(userId, "money") || 0;
+            let slotWins = await usersData.get(userId, "data.slot_wins") || 0;
+            let slotLosses = await usersData.get(userId, "data.slot_losses") || 0;
+            let slotTotalBet = await usersData.get(userId, "data.slot_total_bet") || 0;
+            let slotBiggestWin = await usersData.get(userId, "data.slot_biggest_win") || 0;
+            let slotLastPlay = await usersData.get(userId, "data.slot_last_play") || 0;
+
+            // 🔥 COOLDOWN (10 segundos)
+            const now = Date.now();
+            const cooldownTime = 10000;
+            
+            if (now - slotLastPlay < cooldownTime) {
+                const remaining = Math.ceil((cooldownTime - (now - slotLastPlay)) / 1000);
+                return message.reply(`⏳ | Aguarde **${remaining}s** para jogar novamente!`);
+            }
+
+            if (betAmount > money) {
+                return message.reply(`❌ | SALDO INSUFICIENTE!\n💰 Você tem: ${money}$`);
+            }
+
+            // 🔥 GIRA A MÁQUINA
+            const result = spinReels();
+            const win = checkWin(result);
+            
+            let newMoney = money;
+            let winnings = 0;
+            let msg = '';
+
+            if (win.multiplier > 0) {
+                // ✅ GANHOU
+                winnings = Math.floor(betAmount * win.multiplier);
+                newMoney += winnings - betAmount;
+                
+                // Atualiza estatísticas
+                slotWins += 1;
+                slotTotalBet += betAmount;
+                if (winnings > slotBiggestWin) {
+                    slotBiggestWin = winnings;
+                }
+
+                msg += `🎰 | ${result.join(' | ')} | 🎰\n\n`;
+                msg += `✅ ${win.type}\n`;
+                msg += `💰 +${winnings}$ (x${win.multiplier})\n`;
+                msg += `💵 ${newMoney}$`;
+
+            } else {
+                // ❌ PERDEU
+                newMoney -= betAmount;
+                
+                slotLosses += 1;
+                slotTotalBet += betAmount;
+
+                // Verifica se teve 2 iguais (quase ganhou)
+                const hasPair = result[0] === result[1] || result[1] === result[2] || result[0] === result[2];
+
+                msg += `🎰 | ${result.join(' | ')} | 🎰\n\n`;
+                msg += `❌ PERDEU!\n`;
+                msg += `💸 -${betAmount}$`;
+                if (hasPair) {
+                    msg += `\n😅 QUASE! Faltou 1`;
+                }
+                msg += `\n💵 ${newMoney}$`;
+            }
+
+            // 🔥 ATUALIZA DADOS NO DATABASE
+            await usersData.set(userId, {
+                money: newMoney,
+                "data.slot_wins": slotWins,
+                "data.slot_losses": slotLosses,
+                "data.slot_total_bet": slotTotalBet,
+                "data.slot_biggest_win": slotBiggestWin,
+                "data.slot_last_play": now
+            });
+
+            // 🔥 MOSTRA ESTATÍSTICAS
+            msg += `\n\n🎯 Vitórias: ${slotWins} | Derrotas: ${slotLosses}`;
+
+            return message.reply(msg);
+
+        } catch (error) {
+            console.error('Erro no slot:', error);
+            return message.reply(`❌ | OPS! DEU RUIM NO SLOT!\n💬 ${error.message}`);
         }
     },
 
-    showRanking: async function ({ message, data }) {
-        const users = data.users;
-        const userIds = Object.keys(users);
-        
-        const players = userIds.filter(id => 
-            (users[id].slot_wins > 0 || users[id].slot_losses > 0)
-        ).map(id => ({
-            ...users[id],
-            userId: id
-        }));
-
-        if (players.length === 0) {
-            return message.reply("📊 | NINGUÉM JOGOU AINDA!");
-        }
-
-        const sorted = players.sort((a, b) => 
-            (b.slot_biggest_win || 0) - (a.slot_biggest_win || 0)
-        );
-
-        const top10 = sorted.slice(0, 10);
-
-        let rankingMessage = "🏆 **RANKING** 🏆\n\n";
-
-        top10.forEach((player, index) => {
-            const name = player.name || `User ${player.userId}`;
-            const biggestWin = player.slot_biggest_win || 0;
+    // 🔥 RANKING
+    showRanking: async function ({ message, usersData }) {
+        try {
+            const allUsers = await usersData.getAll();
             
-            let medal = "";
-            if (index === 0) medal = "🥇 ";
-            else if (index === 1) medal = "🥈 ";
-            else if (index === 2) medal = "🥉 ";
-            else medal = `${index + 1}. `;
+            // Filtra quem jogou slot
+            const players = allUsers
+                .filter(u => (u.data?.slot_wins || 0) > 0 || (u.data?.slot_losses || 0) > 0)
+                .map(u => ({
+                    name: u.name || `User_${u.userID}`,
+                    userId: u.userID,
+                    biggestWin: u.data?.slot_biggest_win || 0,
+                    wins: u.data?.slot_wins || 0,
+                    losses: u.data?.slot_losses || 0
+                }))
+                .sort((a, b) => b.biggestWin - a.biggestWin);
 
-            rankingMessage += `${medal} **${name}**\n`;
-            rankingMessage += `   💰 ${biggestWin}$\n`;
-        });
+            if (players.length === 0) {
+                return message.reply("📊 | NINGUÉM JOGOU AINDA!");
+            }
 
-        const jackpot = data.global.jackpot || 0;
-        rankingMessage += `\n🎰 **JACKPOT:** ${jackpot}$`;
+            const top10 = players.slice(0, 10);
+            let msg = "🏆 **RANKING DO SLOT** 🏆\n\n";
 
-        return message.reply(rankingMessage);
+            top10.forEach((player, index) => {
+                const medal = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : `${index + 1}. `;
+                msg += `${medal} **${player.name}**\n`;
+                msg += `   💰 Maior prêmio: ${player.biggestWin}$\n`;
+                msg += `   🎯 ${player.wins}W | ${player.losses}L\n\n`;
+            });
+
+            return message.reply(msg);
+
+        } catch (error) {
+            console.error('Erro no ranking:', error);
+            return message.reply(`❌ | ERRO AO CARREGAR RANKING!\n💬 ${error.message}`);
+        }
     }
+};
+
+// 🔥 SÍMBOLOS E FUNÇÕES
+const SYMBOLS = {
+    COMMON: ['🍒', '🍋', '🍊', '🍇', '🍉', '🍓', '🍑', '🥝'],
+    RARE: ['⭐', '🎰', '🔔', '💎'],
+    ULTRA_RARE: ['7️⃣', '👑']
+};
+
+const spinReels = () => {
+    const allSymbols = [...SYMBOLS.COMMON, ...SYMBOLS.RARE, ...SYMBOLS.ULTRA_RARE];
+    return [
+        allSymbols[Math.floor(Math.random() * allSymbols.length)],
+        allSymbols[Math.floor(Math.random() * allSymbols.length)],
+        allSymbols[Math.floor(Math.random() * allSymbols.length)]
+    ];
+};
+
+const checkWin = (result) => {
+    const [a, b, c] = result;
+    
+    if (a === b && b === c) {
+        if (a === '👑') return { multiplier: 25, type: '👑 JACKPOT ROYAL!' };
+        if (a === '7️⃣') return { multiplier: 15, type: '7️⃣ SETE DA SORTE!' };
+        if (a === '💎') return { multiplier: 10, type: '💎 DIAMANTE!' };
+        if (a === '⭐') return { multiplier: 8, type: '⭐ ESTRELA!' };
+        if (a === '🎰') return { multiplier: 6, type: '🎰 CAÇA-NÍQUEIS!' };
+        if (a === '🔔') return { multiplier: 5, type: '🔔 SINO!' };
+        return { multiplier: 3, type: `🍀 ${a} TRIPLO!` };
+    }
+    
+    if (a === b || b === c || a === c) {
+        return { multiplier: 1.5, type: '👍 DUPLO!' };
+    }
+    
+    return { multiplier: 0, type: '💀 PERDEU!' };
 };
