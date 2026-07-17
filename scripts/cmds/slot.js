@@ -2,8 +2,8 @@ module.exports = {
     config: {
         name: "slot",
         aliases: ["caçaniqueis", "roleta"],
-        version: "3.4",
-        author: "SeuNome",
+        version: "3.5",
+        author: "gerson",
         countDown: 5,
         role: 0,
         description: {
@@ -21,19 +21,30 @@ module.exports = {
             const userId = parseInt(senderID);
             const command = args[0]?.toLowerCase();
 
-            // 🔥 CRIA OU BUSCA O USUÁRIO
+            // 🔥 CRIA O USUÁRIO SE NÃO EXISTIR
             let userData = await usersData.get(userId);
             if (!userData) {
                 await usersData.set(userId, {
                     money: 0,
                     exp: 0,
                     name: `User_${userId}`,
-                    data: {}
+                    data: {
+                        slot_wins: 0,
+                        slot_losses: 0,
+                        slot_biggest_win: 0,
+                        slot_last_play: 0,
+                        work_count: 0,
+                        work_last_reset: 0
+                    }
                 });
                 userData = await usersData.get(userId);
             }
 
-            // 🔥 RANKING
+            if (!userData) {
+                return message.reply("❌ | ERRO AO CRIAR USUÁRIO!");
+            }
+
+            // Ranking
             if (command === "ranking" || command === "rank") {
                 return await this.showRanking({ message, usersData });
             }
@@ -47,64 +58,54 @@ module.exports = {
                 return message.reply(`❌ | APOSTA MÍNIMA: 10$`);
             }
 
-            // 🔥 PEGA DADOS DO USUÁRIO
-            let money = await usersData.get(userId, "money") || 0;
-            let slotWins = await usersData.get(userId, "data.slot_wins") || 0;
-            let slotLosses = await usersData.get(userId, "data.slot_losses") || 0;
-            let slotBiggestWin = await usersData.get(userId, "data.slot_biggest_win") || 0;
-            let slotLastPlay = await usersData.get(userId, "data.slot_last_play") || 0;
+            // 🔥 PEGA DADOS
+            let money = userData.money || 0;
+            let slotWins = userData.data?.slot_wins || 0;
+            let slotLosses = userData.data?.slot_losses || 0;
+            let slotBiggestWin = userData.data?.slot_biggest_win || 0;
+            let slotLastPlay = userData.data?.slot_last_play || 0;
 
-            // 🔥 COOLDOWN (10 segundos)
+            // Cooldown
             const now = Date.now();
-            const cooldownTime = 10000;
-            
-            if (now - slotLastPlay < cooldownTime) {
-                const remaining = Math.ceil((cooldownTime - (now - slotLastPlay)) / 1000);
-                return message.reply(`⏳ | Aguarde **${remaining}s** para jogar novamente!`);
+            if (now - slotLastPlay < 10000) {
+                const remaining = Math.ceil((10000 - (now - slotLastPlay)) / 1000);
+                return message.reply(`⏳ | Aguarde **${remaining}s**!`);
             }
 
             if (betAmount > money) {
                 return message.reply(`❌ | SALDO INSUFICIENTE!\n💰 Você tem: ${money}$`);
             }
 
-            // 🔥 GIRA A MÁQUINA
+            // Gira
             const result = spinReels();
             const win = checkWin(result);
             
             let newMoney = money;
-            let winnings = 0;
             let msg = '';
 
             if (win.multiplier > 0) {
-                winnings = Math.floor(betAmount * win.multiplier);
+                const winnings = Math.floor(betAmount * win.multiplier);
                 newMoney += winnings - betAmount;
-                
                 slotWins += 1;
-                if (winnings > slotBiggestWin) {
-                    slotBiggestWin = winnings;
-                }
+                if (winnings > slotBiggestWin) slotBiggestWin = winnings;
 
                 msg += `🎰 | ${result.join(' | ')} | 🎰\n\n`;
                 msg += `✅ ${win.type}\n`;
                 msg += `💰 +${winnings}$ (x${win.multiplier})\n`;
                 msg += `💵 ${newMoney}$`;
-
             } else {
                 newMoney -= betAmount;
                 slotLosses += 1;
 
                 const hasPair = result[0] === result[1] || result[1] === result[2] || result[0] === result[2];
-
                 msg += `🎰 | ${result.join(' | ')} | 🎰\n\n`;
                 msg += `❌ PERDEU!\n`;
                 msg += `💸 -${betAmount}$`;
-                if (hasPair) {
-                    msg += `\n😅 QUASE! Faltou 1`;
-                }
+                if (hasPair) msg += `\n😅 QUASE! Faltou 1`;
                 msg += `\n💵 ${newMoney}$`;
             }
 
-            // 🔥 SALVA TUDO DE UMA VEZ
+            // 🔥 SALVA
             await usersData.set(userId, {
                 money: newMoney,
                 "data.slot_wins": slotWins,
@@ -114,12 +115,11 @@ module.exports = {
             });
 
             msg += `\n\n🎯 Vitórias: ${slotWins} | Derrotas: ${slotLosses}`;
-
             return message.reply(msg);
 
         } catch (error) {
             console.error('Erro no slot:', error);
-            return message.reply(`❌ | OPS! DEU RUIM NO SLOT!\n💬 ${error.message}`);
+            return message.reply(`❌ | ERRO: ${error.message}`);
         }
     },
 
@@ -131,7 +131,6 @@ module.exports = {
                 .filter(u => (u.data?.slot_wins || 0) > 0 || (u.data?.slot_losses || 0) > 0)
                 .map(u => ({
                     name: u.name || `User_${u.userID}`,
-                    userId: u.userID,
                     biggestWin: u.data?.slot_biggest_win || 0,
                     wins: u.data?.slot_wins || 0,
                     losses: u.data?.slot_losses || 0
@@ -146,7 +145,7 @@ module.exports = {
             let msg = "🏆 **RANKING DO SLOT** 🏆\n\n";
 
             top10.forEach((player, index) => {
-                const medal = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : `${index + 1}. `;
+                const medal = ["🥇 ", "🥈 ", "🥉 "][index] || `${index + 1}. `;
                 msg += `${medal} **${player.name}**\n`;
                 msg += `   💰 Maior prêmio: ${player.biggestWin}$\n`;
                 msg += `   🎯 ${player.wins}W | ${player.losses}L\n\n`;
@@ -156,7 +155,7 @@ module.exports = {
 
         } catch (error) {
             console.error('Erro no ranking:', error);
-            return message.reply(`❌ | ERRO AO CARREGAR RANKING!\n💬 ${error.message}`);
+            return message.reply(`❌ | ERRO: ${error.message}`);
         }
     }
 };
