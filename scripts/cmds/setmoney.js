@@ -1,4 +1,4 @@
-!cmd install addmoney.js module.exports = {
+module.exports = {
   config: {
     name: "set",
     aliases: ['ap'],
