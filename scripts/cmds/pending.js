@@ -1,72 +1,144 @@
-!cmd install addmoney.js module.exports = {
+const axios = require("axios");
+const fs = require("fs");
+
+module.exports = {
   config: {
-    name: "set",
-    aliases: ['ap'],
-    version: "1.0",
-    author: "Loid Butter",
-    role: 0,
-    shortDescription: {
-      en: "Set coins and experience points for a user"
-    },
-    longDescription: {
-      en: "Set coins and experience points for a user as desired"
-    },
-    category: "economy",
-    guide: {
-      en: "{pn}set [money|exp] [amount]"
-    }
+    name: "pending",
+    aliases: ["pen", "pend", "pe"],
+    version: "1.6.9",
+    author: "♡ Nazrul ♡",
+    countDown: 5,
+    role: 1,
+    shortDescription: "handle pending requests",
+    longDescription: "Approve orreject pending users or group requests",
+    category: "utility",
   },
 
-  onStart: async function ({ args, event, api, usersData }) {
-    const permission = ["61590677925905"];
-  if (!permission.includes(event.senderID)) {
-    api.sendMessage("You don't have enough permission to use this command. Only My Lord Can Use It.", event.threadID, event.messageID);
-    return;
-  }
-    const query = args[0];
-    const amount = parseInt(args[1]);
+  onReply: async function ({ message, api, event, Reply }) {
+    const { author, pending, messageID } = Reply;
+    if (String(event.senderID) !== String(author)) return;
 
-    if (!query || !amount) {
-      return api.sendMessage("Invalid command arguments. Usage: set [query] [amount]", event.threadID);
+    const { body, threadID } = event;
+
+    if (body.trim().toLowerCase() === "c") {
+      try {
+        await api.unsendMessage(messageID);
+        return api.sendMessage(
+          ` Operation has been canceled!`,
+          threadID
+        );
+      } catch {
+        return;
+      }
     }
 
-    const { messageID, senderID, threadID } = event;
+    const indexes = body.split(/\s+/).map(Number);
 
-    if (senderID === api.getCurrentUserID()) return;
-
-    let targetUser;
-    if (event.type === "message_reply") {
-      targetUser = event.messageReply.senderID;
-    } else {
-      const mention = Object.keys(event.mentions);
-      targetUser = mention[0] || senderID;
+    if (isNaN(indexes[0])) {
+      return api.sendMessage(`⚠ Invalid input! Please try again.`, threadID);
     }
 
-    const userData = await usersData.get(targetUser);
-    if (!userData) {
-      return api.sendMessage("User not found.", threadID);
+    let count = 0;
+
+    for (const idx of indexes) {
+ 
+      if (idx <= 0 || idx > pending.length) continue;
+
+      const group = pending[idx - 1];
+
+      try {
+        await api.sendMessage(
+          `✅ Group has been Successfully Approved by ShAn!\n\n📜 Type ${global.GoatBot.config.prefix}help to See Cmds!`,
+          group.threadID
+        );
+
+        await api.changeNickname(
+          `${global.GoatBot.config.nickNameBot || "🦋𝙔𝙤𝙤 𝙔𝙤𝙤 𝗦𝗵𝗔𝗻✨"}`,
+          group.threadID,
+          api.getCurrentUserID()
+        );
+
+        count++;
+      } catch {
+  
+        count++;
+      }
     }
 
-    const name = await usersData.getName(targetUser);
-
-    if (query.toLowerCase() === 'exp') {
-      await usersData.set(targetUser, {
-        money: userData.money,
-        exp: amount,
-        data: userData.data
-      });
-
-      return api.sendMessage(`Set experience points to ${amount} for ${name}.`, threadID);
-    } else if (query.toLowerCase() === 'money') {
-      await usersData.set(targetUser, {
-        money: amount,
-        exp: userData.exp,
-        data: userData.data
-      });
-
-      return api.sendMessage(`Set coins to ${amount} for ${name}.`, threadID);
-    } else {
-      return api.sendMessage("Invalid query. Use 'exp' to set experience points or 'money' to set coins.", threadID);
+    for (const idx of indexes.sort((a, b) => b - a)) {
+      if (idx > 0 && idx <= pending.length) {
+        pending.splice(idx - 1, 1);
+      }
     }
-  }
+
+    return api.sendMessage(
+      `✅ | [ Successfully ] 🎉 Approved ${count} Groups✨!`,
+      threadID
+    );
+  },
+
+  onStart: async function ({ api, event, args, usersData }) {
+    const { threadID, messageID } = event;
+    const adminBot = global.GoatBot.config.adminBot;
+
+    if (!adminBot.includes(event.senderID)) {
+      return api.sendMessage(
+        `⚠ you have no permission to use this command!`,
+        threadID
+      );
+    }
+
+    const type = args[0]?.toLowerCase();
+    if (!type) {
+      return api.sendMessage(
+        `Usage: pending [user/thread/all]`,
+        threadID
+      );
+    }
+
+    let msg = "",
+      index = 1;
+    try {
+      const spam = (await api.getThreadList(100, null, ["OTHER"])) || [];
+      const pending = (await api.getThreadList(100, null, ["PENDING"])) || [];
+      const list = [...spam, ...pending];
+
+      let filteredList = [];
+      if (type.startsWith("u")) filteredList = list.filter((t) => !t.isGroup);
+      if (type.startsWith("t")) filteredList = list.filter((t) => t.isGroup);
+      if (type === "all") filteredList = list;
+
+      for (const single of filteredList) {
+        const name =
+          single.name || (await usersData.getName(single.threadID)) || "Unknown";
+
+        msg += `[ ${index} ]  ${name}\n`;
+        index++;
+      }
+
+      msg += `🦋 𝗦𝗵𝗔𝗻 please Reply with the correct group number to approve!\n`;
+      msg += `✨ Reply with "c" to Cancel.\n`;
+
+      return api.sendMessage(
+        `✨ | [ Pending Groups & Users ${type
+          .charAt(0)
+          .toUpperCase()}${type.slice(1)} List ✨ ]\n\n${msg}`,
+        threadID,
+        (error, info) => {
+          global.GoatBot.onReply.set(info.messageID, {
+            commandName: this.config.name,
+            messageID: info.messageID,
+            author: event.senderID,
+            pending: filteredList,
+          });
+        },
+        messageID
+      );
+    } catch (error) {
+      return api.sendMessage(
+        `⚠ Failed to retrieve pending list. Please try again later.`,
+        threadID
+      );
+    }
+  },
 };
