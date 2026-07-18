@@ -1,0 +1,95 @@
+[
+  {
+    "userID": "61590677925905",
+    "name": "ᎶᎬᏒᏕᎾᏁ い ᎪᏃᎪᎬᏞ",
+    "gender": 2,
+    "vanity": "gerson.azael0",
+    "exp": 3052,
+    "money": 23248,
+    "banned": {},
+    "settings": {},
+    "data": {
+      "lastTimeGetReward": "18/07/2026"
+    },
+    "createdAt": "2026-07-18T00:04:48.253Z",
+    "updatedAt": "2026-07-18T01:00:33.817Z"
+  },
+  {
+    "userID": "61574275893395",
+    "name": "ᏂᎥᏁᎪᏆᎪ い ᏂᎩᏬᎶᎪ",
+    "gender": 2,
+    "vanity": "sousasadx",
+    "exp": 38,
+    "money": 0,
+    "banned": {},
+    "settings": {},
+    "data": {},
+    "createdAt": "2026-07-18T00:06:45.019Z",
+    "updatedAt": "2026-07-18T00:59:05.306Z"
+  },
+  {
+    "userID": "100052391415998",
+    "name": "Ludacrïs Coelho",
+    "gender": 2,
+    "vanity": "ludacriscoelho",
+    "exp": 1,
+    "money": 0,
+    "banned": {},
+    "settings": {},
+    "data": {},
+    "createdAt": "2026-07-18T00:23:48.849Z",
+    "updatedAt": "2026-07-18T00:23:48.897Z"
+  },
+  {
+    "userID": "100086088104841",
+    "name": "Yurei Adiosnaldo Kanashimi",
+    "gender": 2,
+    "vanity": "adiosnaldo.tempest",
+    "exp": 6,
+    "money": 0,
+    "banned": {},
+    "settings": {},
+    "data": {},
+    "createdAt": "2026-07-18T00:25:16.503Z",
+    "updatedAt": "2026-07-18T00:27:20.986Z"
+  },
+  {
+    "userID": "61578990810658",
+    "name": "Juddy Armstrong Yoshida",
+    "gender": 1,
+    "vanity": "",
+    "exp": 1,
+    "money": 0,
+    "banned": {},
+    "settings": {},
+    "data": {},
+    "createdAt": "2026-07-18T00:25:22.279Z",
+    "updatedAt": "2026-07-18T00:25:38.184Z"
+  },
+  {
+    "userID": "61590621437539",
+    "name": "Nagisa Von'Darkness",
+    "gender": 2,
+    "vanity": "",
+    "exp": 1,
+    "money": 0,
+    "banned": {},
+    "settings": {},
+    "data": {},
+    "createdAt": "2026-07-18T00:29:35.285Z",
+    "updatedAt": "2026-07-18T00:29:35.293Z"
+  },
+  {
+    "userID": "61585785143353",
+    "name": "Álvaro DK",
+    "gender": 2,
+    "vanity": "",
+    "exp": 7,
+    "money": 0,
+    "banned": {},
+    "settings": {},
+    "data": {},
+    "createdAt": "2026-07-18T00:31:12.094Z",
+    "updatedAt": "2026-07-18T00:39:59.757Z"
+  }
+]
