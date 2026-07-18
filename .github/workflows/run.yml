@@ -1,72 +1,54 @@
-name: Node.js CI
+name: Bot
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # 🔥 PERMITE RODAR MANUALMENTE
+  schedule:
+    - cron: '0 */6 * * *'  # 🔥 A CADA 6 HORAS
+  workflow_dispatch:
 
-concurrency:  # 🔥 EVITA CONFLITOS
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  run-bot:
     runs-on: ubuntu-latest
     
-    timeout-minutes: 10  # 🔥 TEMPO MÁXIMO DE EXECUÇÃO
-
-    strategy:
-      matrix:
-        node-version: [20.x]
+    timeout-minutes: 360  # 🔥 6 HORAS (360 MINUTOS)
 
     steps:
-    - name: 📥 Checkout do código
-      uses: actions/checkout@v4  # 🔥 ATUALIZADO PARA V4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-    - name: ⚙️ Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4  # 🔥 ATUALIZADO PARA V4
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: ⚙️ Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: 📦 Instalar dependências
-      run: npm install
+      - name: 📦 Instalar dependências
+        run: npm install
 
-    - name: 🤖 Rodar o bot
-      run: npm start
-      env:
-        NODE_ENV: production
+      - name: 🤖 Rodar o bot
+        run: node bot.js
+        env:
+          NODE_ENV: production
 
-    # 🔥🔥🔥 SALVAR DADOS (MELHORADO) 🔥🔥🔥
-    - name: 💾 Salvar dados no repositório
-      if: always()  # 🔥 RODA MESMO SE O BOT DER ERRO
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        
-        # 🔥 ADICIONA TODOS OS ARQUIVOS DE DADOS
-        echo "📂 Verificando arquivos de dados..."
-        ls -la data/ 2>/dev/null || echo "⚠️ Pasta data não existe"
-        
-        # Adiciona todos os JSONs
-        git add data/*.json 2>/dev/null || true
-        git add *.json 2>/dev/null || true
-        git add *data*.json 2>/dev/null || true
-        
-        # Verifica se tem mudanças
-        if git diff --staged --quiet; then
-          echo "📝 Nenhuma mudança para commitar"
-        else
-          echo "🔄 Commitando mudanças..."
-          git commit -m "🔄 Atualiza dados do bot [skip ci]"
-          git push
-          echo "✅ Dados salvos com sucesso!"
-        fi
-        
-        # 🔥 MOSTRA STATUS FINAL
-        echo "📊 Status do repositório após salvamento:"
-        git status
+      # 🔥 SALVAR DADOS
+      - name: 💾 Salvar dados
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add data/*.json 2>/dev/null || true
+          git add *.json 2>/dev/null || true
+          
+          if git diff --staged --quiet; then
+            echo "📝 Nenhuma mudança"
+          else
+            git commit -m "🔄 Dados salvos [skip ci]"
+            git push
+            echo "✅ Dados salvos!"
+          fi
