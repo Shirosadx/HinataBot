@@ -127,4 +127,70 @@ module.exports = {
             } else if (forcedResult === 'ultra') {
                 winnings = amount * 10;
                 resultType = 'win';
-            } else if (force
+            } else if (forcedResult === 'rare') {
+                winnings = amount * 5;
+                resultType = 'win';
+            } else if (forcedResult === 'triple') {
+                winnings = amount * 3;
+                resultType = 'win';
+            } else if (forcedResult === 'pair') {
+                winnings = amount * 1.5;
+                resultType = 'win';
+            } else {
+                winnings = -amount;
+                resultType = 'lose';
+            }
+
+            // Arredonda winnings
+            winnings = Math.floor(winnings);
+
+            // 🔥 ATUALIZA SALDO
+            const newMoney = money + winnings;
+            await usersData.set(senderID, {
+                money: newMoney,
+                data: userData.data
+            });
+
+            // 🔥 MENSAGEM
+            let msg = '';
+            
+            // 🔥 ANIMAÇÃO DOS SÍMBOLOS
+            const slotDisplay = `┌─────┐\n│ ${slot1} │\n├─────┤\n│ ${slot2} │\n├─────┤\n│ ${slot3} │\n└─────┘`;
+
+            if (resultType === 'jackpot') {
+                msg = `🎰 **JACKPOT!** You won $${winnings}!\n${slotDisplay}`;
+            } else if (resultType === 'win') {
+                msg = `🎉 You won $${winnings}!\n${slotDisplay}`;
+            } else {
+                msg = `💀 You lost $${Math.abs(winnings)}!\n${slotDisplay}`;
+            }
+
+            // 🔥 SALDO ATUAL
+            msg += `\n\n💰 Balance: $${newMoney}`;
+
+            // 🔥 ESTATÍSTICAS
+            const wins = userData.data?.slot_wins || 0;
+            const losses = userData.data?.slot_losses || 0;
+            
+            if (winnings > 0) {
+                await usersData.set(senderID, {
+                    "data.slot_wins": wins + 1
+                });
+            } else {
+                await usersData.set(senderID, {
+                    "data.slot_losses": losses + 1
+                });
+            }
+
+            return api.sendMessage(msg, threadID, messageID);
+
+        } catch (error) {
+            console.error('Erro no slot:', error);
+            return api.sendMessage(
+                '❌ | ERRO: ' + error.message,
+                event.threadID,
+                event.messageID
+            );
+        }
+    }
+};
