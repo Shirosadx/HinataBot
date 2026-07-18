@@ -2,7 +2,24 @@ const Canvas = require('canvas');
 const fs = require('fs-extra');
 const path = require('path');
 
-// 🔥 MAPEAMENTO DE CARACTERES ESPECIAIS → LETRAS NORMAIS
+// 🔥 FUNÇÃO ROUND RECT (sem prototype)
+function roundRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+// 🔥 MAPEAMENTO DE CARACTERES
 const normalizeText = (text) => {
     if (!text) return 'User';
     const map = {
@@ -34,7 +51,7 @@ module.exports = {
     config: {
         name: "top",
         aliases: ["ranking", "maisricos"],
-        version: "2.0",
+        version: "2.1",
         author: "SeuNome",
         countDown: 10,
         role: 0,
@@ -127,7 +144,8 @@ async function generateRankingBanner(pathImg, players) {
     ctx.shadowBlur = 30;
     ctx.strokeStyle = '#4a9eff';
     ctx.lineWidth = 3;
-    ctx.strokeRect(15, 15, width - 30, height - 30);
+    roundRect(ctx, 15, 15, width - 30, height - 30, 10);
+    ctx.stroke();
     ctx.shadowBlur = 0;
 
     // 🔥 PONTOS BRILHANTES
@@ -169,20 +187,18 @@ async function generateRankingBanner(pathImg, players) {
         const x = spacingX + col * (avatarSize + spacingX);
         const y = startY + row * rowHeight;
 
-        // 🔥 FUNDO DO CARD (transparente)
+        // 🔥 FUNDO DO CARD
         ctx.shadowColor = 'rgba(74, 158, 255, 0.2)';
         ctx.shadowBlur = 20;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-        ctx.beginPath();
-        ctx.roundRect(x - 10, y - 10, avatarSize + 20, avatarSize + 60, 12);
+        roundRect(ctx, x - 10, y - 10, avatarSize + 20, avatarSize + 60, 12);
         ctx.fill();
         ctx.shadowBlur = 0;
 
         // Borda do card
         ctx.strokeStyle = 'rgba(74, 158, 255, 0.15)';
         ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(x - 10, y - 10, avatarSize + 20, avatarSize + 60, 12);
+        roundRect(ctx, x - 10, y - 10, avatarSize + 20, avatarSize + 60, 12);
         ctx.stroke();
 
         // 🔥 AVATAR
@@ -222,7 +238,7 @@ async function generateRankingBanner(pathImg, players) {
             ctx.fillText('👤', x + avatarSize / 2, y + avatarSize / 2 + 15);
         }
 
-        // 🔥 RANK (número)
+        // 🔥 RANK
         const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32'];
         const rankColor = player.rank <= 3 ? rankColors[player.rank - 1] : '#4a9eff';
 
@@ -257,18 +273,4 @@ async function generateRankingBanner(pathImg, players) {
     // 🔥 SALVA A IMAGEM
     const imageBuffer = canvas.toBuffer('image/png');
     fs.writeFileSync(pathImg, imageBuffer);
-}
-
-// 🔥 POLYFILL PARA roundRect (caso não exista)
-if (!Canvas.Context2D.prototype.roundRect) {
-    Canvas.Context2D.prototype.roundRect = function (x, y, w, h, r) {
-        if (w < 2 * r) r = w / 2;
-        if (h < 2 * r) r = h / 2;
-        this.moveTo(x + r, y);
-        this.arcTo(x + w, y, x + w, y + h, r);
-        this.arcTo(x + w, y + h, x, y + h, r);
-        this.arcTo(x, y + h, x, y, r);
-        this.arcTo(x, y, x + w, y, r);
-        return this;
-    };
 }
