@@ -1,17 +1,17 @@
-const { createCanvas, loadImage } = require('canvas');
+const Canvas = require('canvas');
 const fs = require('fs-extra');
 const path = require('path');
 const axios = require('axios');
 
 // 🔥 MAPEAMENTO DE CARACTERES ESTILIZADOS → TEXTO NORMAL
 const unstyleText = (text) => {
+    if (!text) return 'User';
     const map = {
         'Ꭺ': 'A', 'Ᏸ': 'B', 'Ꮯ': 'C', 'Ꭰ': 'D', 'Ꭼ': 'E', 
-        'Ꭰ': 'F', 'Ꮹ': 'G', 'Ꮋ': 'H', 'Ꭵ': 'I', 'Ꮰ': 'J',
+        'Ꮹ': 'G', 'Ꮋ': 'H', 'Ꭵ': 'I', 'Ꮰ': 'J',
         'Ꮶ': 'K', 'Ꮮ': 'L', 'Ꮇ': 'M', 'Ꮑ': 'N', 'Ꮎ': 'O',
         'Ꮲ': 'P', 'Ꭴ': 'Q', 'Ꮢ': 'R', 'Ꮥ': 'S', 'Ꮖ': 'T',
-        'Ꮜ': 'U', 'Ꮙ': 'V', 'Ꮃ': 'W', 'Ꮖ': 'X', 'Ꮍ': 'Y',
-        'Ꮓ': 'Z'
+        'Ꮜ': 'U', 'Ꮙ': 'V', 'Ꮃ': 'W', 'Ꮍ': 'Y', 'Ꮓ': 'Z'
     };
     return text.split('').map(char => map[char] || char).join('');
 };
@@ -42,7 +42,7 @@ module.exports = {
     config: {
         name: "balance",
         aliases: ["bal", "money", "carteira", "saldo"],
-        version: "3.8",
+        version: "3.9",
         author: "SeuNome",
         countDown: 5,
         role: 0,
@@ -83,7 +83,7 @@ module.exports = {
             const exp = userData.exp || 0;
             const level = getLevel(money);
 
-            // RANK
+            // 🔥 RANK
             const allUsers = await usersData.getAll();
             const sorted = allUsers
                 .filter(u => (u.money || 0) > 0)
@@ -108,7 +108,10 @@ module.exports = {
                 rankColor = '#808080';
             }
 
-            const pathImg = path.join(__dirname, 'cache', `balance_${userId}.png');
+            // 🔥 PEGA O AVATAR USANDO O MÉTODO DO BOT
+            const avatarUrl = await usersData.getAvatarUrl(userId);
+
+            const pathImg = path.join(__dirname, 'cache', `balance_${userId}.png`);
             
             await generateBanner(
                 pathImg,
@@ -118,7 +121,7 @@ module.exports = {
                 level,
                 rankText,
                 rankColor,
-                userId,
+                avatarUrl,
                 totalPlayers
             );
 
@@ -146,10 +149,10 @@ module.exports = {
 };
 
 // 🔥 FUNÇÃO QUE GERA O BANNER
-async function generateBanner(pathImg, name, money, exp, level, rankText, rankColor, userId, totalPlayers) {
+async function generateBanner(pathImg, name, money, exp, level, rankText, rankColor, avatarUrl, totalPlayers) {
     const width = 1000;
     const height = 400;
-    const canvas = createCanvas(width, height);
+    const canvas = Canvas.createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
     // 🔥 FUNDO
@@ -177,25 +180,17 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
         ctx.fill();
     }
 
-    // 🔥 AVATAR (lado esquerdo)
+    // 🔥 AVATAR (usando o método do bot)
     let avatarLoaded = false;
     try {
-        const avatarUrl = `https://graph.facebook.com/${userId}/picture?width=300&height=300`;
-        const avatarResponse = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
-        const avatarBuffer = Buffer.from(avatarResponse.data, 'utf-8');
-        const avatarPath = path.join(__dirname, 'cache', `avatar_${userId}.png`);
-        fs.writeFileSync(avatarPath, avatarBuffer);
-        
-        const avatar = await loadImage(avatarPath);
+        const avatar = await Canvas.loadImage(avatarUrl);
         const avatarSize = 140;
         const avatarX = 50;
         const avatarY = (height - avatarSize) / 2;
 
-        // Sombra
         ctx.shadowColor = '#4a9eff';
         ctx.shadowBlur = 50;
         
-        // Avatar redondo
         ctx.save();
         ctx.beginPath();
         ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
@@ -205,14 +200,12 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
         ctx.restore();
         ctx.shadowBlur = 0;
 
-        // Borda
         ctx.strokeStyle = '#4a9eff';
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2 + 2, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Glow
         ctx.shadowColor = '#4a9eff';
         ctx.shadowBlur = 40;
         ctx.strokeStyle = 'rgba(74, 158, 255, 0.2)';
@@ -223,7 +216,6 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
         ctx.shadowBlur = 0;
 
         avatarLoaded = true;
-        fs.unlinkSync(avatarPath);
 
     } catch (e) {
         console.log('❌ Erro ao carregar avatar:', e.message);
@@ -247,7 +239,7 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
         ctx.fillText('👤', avatarX + avatarSize/2, avatarY + avatarSize/2 + 20);
     }
 
-    // 🔥 LINHA DIVISÓRIA (vertical)
+    // 🔥 LINHA DIVISÓRIA
     ctx.strokeStyle = 'rgba(74, 158, 255, 0.15)';
     ctx.lineWidth = 1;
     ctx.setLineDash([5, 5]);
@@ -257,11 +249,11 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 🔥 INFORMAÇÕES (lado direito)
+    // 🔥 INFORMAÇÕES
     const infoX = 270;
-    let currentY = 50;  // 🔥 COMEÇA MAIS EM CIMA
+    let currentY = 50;
 
-    // 🔥 NÍVEL (bem no topo)
+    // NÍVEL
     ctx.shadowColor = level.color;
     ctx.shadowBlur = 15;
     ctx.fillStyle = level.color;
@@ -269,9 +261,9 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
     ctx.textAlign = 'left';
     ctx.fillText(level.name, infoX, currentY);
     ctx.shadowBlur = 0;
-    currentY += 45; // 🔥 ESPAÇO
+    currentY += 45;
 
-    // 🔥 NOME
+    // NOME
     ctx.shadowColor = '#00e5ff';
     ctx.shadowBlur = 20;
     ctx.fillStyle = '#00e5ff';
@@ -279,9 +271,9 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
     ctx.textAlign = 'left';
     ctx.fillText(name, infoX, currentY);
     ctx.shadowBlur = 0;
-    currentY += 55; // 🔥 ESPAÇO
+    currentY += 55;
 
-    // 🔥 LINHA FINA
+    // LINHA
     ctx.strokeStyle = 'rgba(0, 229, 255, 0.1)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -289,7 +281,7 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
     ctx.lineTo(infoX + 350, currentY - 10);
     ctx.stroke();
 
-    // 🔥 RANK (bem no meio)
+    // RANK
     ctx.shadowColor = rankColor;
     ctx.shadowBlur = 15;
     ctx.fillStyle = rankColor;
@@ -297,9 +289,9 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
     ctx.textAlign = 'left';
     ctx.fillText(rankText, infoX, currentY + 20);
     ctx.shadowBlur = 0;
-    currentY += 55; // 🔥 ESPAÇO
+    currentY += 55;
 
-    // 🔥 DINHEIRO (formatado)
+    // DINHEIRO
     const formattedMoney = formatMoney(money);
     const moneyColor = money >= 10000 ? '#FFD700' : money >= 1000 ? '#00ff88' : '#ffffff';
     
@@ -310,23 +302,23 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
     ctx.textAlign = 'left';
     ctx.fillText(formattedMoney, infoX, currentY);
     ctx.shadowBlur = 0;
-    currentY += 60; // 🔥 ESPAÇO
+    currentY += 60;
 
-    // 🔥 EXPERIÊNCIA
+    // EXPERIÊNCIA
     ctx.fillStyle = '#00d4ff';
     ctx.font = `18px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(`⭐ ${exp} XP`, infoX, currentY);
-    currentY += 35; // 🔥 ESPAÇO
+    currentY += 35;
 
-    // 🔥 TOTAL JOGADORES
+    // TOTAL JOGADORES
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
     ctx.font = `15px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(`👥 ${totalPlayers} jogadores`, infoX, currentY);
     currentY += 30;
 
-    // 🔥 BARRA DE PROGRESSO
+    // BARRA DE PROGRESSO
     const barX = infoX;
     const barY = currentY + 5;
     const barWidth = 280;
@@ -344,7 +336,7 @@ async function generateBanner(pathImg, name, money, exp, level, rankText, rankCo
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // 🔥 RODAPÉ
+    // RODAPÉ
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.font = `11px Arial`;
     ctx.textAlign = 'right';
