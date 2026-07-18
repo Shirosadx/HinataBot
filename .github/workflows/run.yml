@@ -5,30 +5,68 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  # 🔥 PERMITE RODAR MANUALMENTE
+
+concurrency:  # 🔥 EVITA CONFLITOS
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    
+    timeout-minutes: 10  # 🔥 TEMPO MÁXIMO DE EXECUÇÃO
 
     strategy:
       matrix:
         node-version: [20.x]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+    - name: 📥 Checkout do código
+      uses: actions/checkout@v4  # 🔥 ATUALIZADO PARA V4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: ⚙️ Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4  # 🔥 ATUALIZADO PARA V4
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm start
-    
-    # 🔥 ADICIONADO: SALVAR DADOS APÓS RODAR O BOT
-    - name: Salvar dados no repositório
+
+    - name: 📦 Instalar dependências
+      run: npm install
+
+    - name: 🤖 Rodar o bot
+      run: npm start
+      env:
+        NODE_ENV: production
+
+    # 🔥🔥🔥 SALVAR DADOS (MELHORADO) 🔥🔥🔥
+    - name: 💾 Salvar dados no repositório
+      if: always()  # 🔥 RODA MESMO SE O BOT DER ERRO
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add data/usersData.json
-        git diff --staged --quiet || git commit -m "🔄 Atualiza dados do bot [skip ci]"
-        git push
+        
+        # 🔥 ADICIONA TODOS OS ARQUIVOS DE DADOS
+        echo "📂 Verificando arquivos de dados..."
+        ls -la data/ 2>/dev/null || echo "⚠️ Pasta data não existe"
+        
+        # Adiciona todos os JSONs
+        git add data/*.json 2>/dev/null || true
+        git add *.json 2>/dev/null || true
+        git add *data*.json 2>/dev/null || true
+        
+        # Verifica se tem mudanças
+        if git diff --staged --quiet; then
+          echo "📝 Nenhuma mudança para commitar"
+        else
+          echo "🔄 Commitando mudanças..."
+          git commit -m "🔄 Atualiza dados do bot [skip ci]"
+          git push
+          echo "✅ Dados salvos com sucesso!"
+        fi
+        
+        # 🔥 MOSTRA STATUS FINAL
+        echo "📊 Status do repositório após salvamento:"
+        git status
