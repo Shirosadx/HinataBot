@@ -1,6 +1,10 @@
 const Canvas = require('canvas');
 const fs = require('fs-extra');
 const path = require('path');
+const axios = require('axios');
+
+// 🔥 SEU NOVO BANNER DO TOP (736x736)
+const TOP_BANNER_URL = 'https://i.postimg.cc/4yZgD1wG/IMG-20260719-193930.jpg';
 
 // 🔥 FUNÇÃO ROUND RECT
 function roundRect(ctx, x, y, w, h, r) {
@@ -51,7 +55,7 @@ module.exports = {
     config: {
         name: "top",
         aliases: ["ranking", "maisricos"],
-        version: "2.6",
+        version: "2.8",
         author: "Hinata",
         countDown: 10,
         role: 0,
@@ -111,95 +115,113 @@ module.exports = {
     }
 };
 
+// 🔥 FUNÇÃO QUE GERA O BANNER DO RANKING
 async function generateRankingBanner(pathImg, players) {
     const width = 1200;
     const height = 900;
     const canvas = Canvas.createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // 🔥 FUNDO AZUL TINGIDO A VERDE
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, '#0a2e3a');
-    gradient.addColorStop(0.3, '#0d4a3a');
-    gradient.addColorStop(0.6, '#0a3a3a');
-    gradient.addColorStop(1, '#062a2a');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+    // 🔥 1. BAIXA O NOVO BANNER E REDIMENSIONA PARA 1200x900
+    try {
+        const response = await axios.get(TOP_BANNER_URL, { responseType: 'arraybuffer' });
+        const bannerBuffer = Buffer.from(response.data, 'utf-8');
+        const bannerPath = path.join(__dirname, 'cache', 'top_banner_temp.png');
+        fs.writeFileSync(bannerPath, bannerBuffer);
+        
+        const banner = await Canvas.loadImage(bannerPath);
+        ctx.drawImage(banner, 0, 0, width, height);
+        fs.unlinkSync(bannerPath);
+    } catch (e) {
+        console.log('❌ Erro ao baixar banner do top, usando fundo padrão');
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#0a1628');
+        gradient.addColorStop(0.5, '#1a0a2e');
+        gradient.addColorStop(1, '#0a1628');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+    }
 
-    // 🔥 BORDA ROSA
+    // 🔥 2. CAMADA SEMI-TRANSPARENTE PARA LEGIBILIDADE
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    roundRect(ctx, 20, 20, width - 40, height - 40, 15);
+    ctx.fill();
+
+    // 🔥 3. BORDA ROSA
     ctx.shadowColor = '#FF1493';
     ctx.shadowBlur = 30;
     ctx.strokeStyle = '#FF1493';
     ctx.lineWidth = 3;
-    roundRect(ctx, 15, 15, width - 30, height - 30, 15);
+    roundRect(ctx, 20, 20, width - 40, height - 40, 15);
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // 🔥 PONTOS BRILHANTES
-    for (let i = 0; i < 80; i++) {
-        const colors = ['rgba(0, 255, 200, 0.08)', 'rgba(0, 200, 255, 0.08)', 'rgba(255, 20, 147, 0.05)'];
-        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+    // 🔥 4. PONTOS BRILHANTES
+    for (let i = 0; i < 60; i++) {
+        ctx.fillStyle = 'rgba(255, 20, 147, ' + (Math.random() * 0.08) + ')';
         ctx.beginPath();
         ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 2 + 0.5, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    // 🔥 TÍTULO
+    // 🔥 5. TÍTULO
     ctx.shadowColor = '#FF1493';
     ctx.shadowBlur = 30;
     ctx.fillStyle = '#FF1493';
     ctx.font = 'bold 40px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('🏆 RANKING DOS MAIS RICOS 🏆', width / 2, 55);
+    ctx.fillText('🏆 RANKING DOS MAIS RICOS 🏆', width / 2, 65);
     ctx.shadowBlur = 0;
 
-    // 🔥 LINHA ROSA
+    // LINHA ROSA
     ctx.strokeStyle = 'rgba(255, 20, 147, 0.3)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(150, 70);
-    ctx.lineTo(width - 150, 70);
+    ctx.moveTo(150, 80);
+    ctx.lineTo(width - 150, 80);
     ctx.stroke();
 
-    // 🔥 HINATA BOT BY GERSON
+    // HINATA BOT BY GERSON
     ctx.fillStyle = '#FF0000';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('🌸 Hinata Bot by Gerson 🌸', width / 2, 100);
+    ctx.fillText('🌸 Hinata Bot by Gerson 🌸', width / 2, 110);
 
-    // 🔥 LINHA SEPARADORA
+    // LINHA SEPARADORA
     ctx.strokeStyle = 'rgba(255, 20, 147, 0.1)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(50, 115);
-    ctx.lineTo(width - 50, 115);
+    ctx.moveTo(50, 125);
+    ctx.lineTo(width - 50, 125);
     ctx.stroke();
 
-    // 🔥 ========== TOP 3 DESTAQUE ==========
+    // 🔥 6. TOP 3 DESTAQUE
     const avatarSize = 150;
     const spacingX = (width - (3 * avatarSize)) / 4;
-    const startY = 140;
+    const startY = 150;
 
     for (let i = 0; i < Math.min(players.length, 3); i++) {
         const player = players[i];
         const x = spacingX + i * (avatarSize + spacingX);
         const y = startY;
 
-        ctx.shadowColor = '#00ffcc';
-        ctx.shadowBlur = 30;
-        ctx.fillStyle = 'rgba(0, 255, 200, 0.05)';
+        // Fundo do card
+        ctx.shadowColor = '#FF1493';
+        ctx.shadowBlur = 25;
+        ctx.fillStyle = 'rgba(255, 20, 147, 0.08)';
         roundRect(ctx, x - 15, y - 15, avatarSize + 30, avatarSize + 85, 20);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        ctx.strokeStyle = 'rgba(0, 255, 200, 0.2)';
+        ctx.strokeStyle = 'rgba(255, 20, 147, 0.3)';
         ctx.lineWidth = 2;
         roundRect(ctx, x - 15, y - 15, avatarSize + 30, avatarSize + 85, 20);
         ctx.stroke();
 
+        // Avatar
         try {
             const avatar = await Canvas.loadImage(player.avatar);
-            ctx.shadowColor = '#00ffcc';
+            ctx.shadowColor = '#FF1493';
             ctx.shadowBlur = 30;
             ctx.save();
             ctx.beginPath();
@@ -217,7 +239,7 @@ async function generateRankingBanner(pathImg, players) {
         } catch (e) {
             ctx.beginPath();
             ctx.arc(x + avatarSize / 2, y + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#0a2e3a';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
             ctx.fill();
             ctx.strokeStyle = '#FF1493';
             ctx.lineWidth = 4;
@@ -228,6 +250,7 @@ async function generateRankingBanner(pathImg, players) {
             ctx.fillText('👤', x + avatarSize / 2, y + avatarSize / 2 + 20);
         }
 
+        // RANK
         const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32'];
         const rankColor = rankColors[i];
         ctx.shadowColor = rankColor;
@@ -238,20 +261,22 @@ async function generateRankingBanner(pathImg, players) {
         ctx.fillText('#' + player.rank, x + avatarSize / 2, y + avatarSize + 35);
         ctx.shadowBlur = 0;
 
+        // NOME
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
         const displayName = player.name.length > 14 ? player.name.substring(0, 12) + '...' : player.name;
         ctx.fillText(displayName, x + avatarSize / 2, y + avatarSize + 65);
 
+        // DINHEIRO
         ctx.fillStyle = '#00ffcc';
         ctx.font = 'bold 18px Arial';
         ctx.fillText(formatMoney(player.money), x + avatarSize / 2, y + avatarSize + 95);
     }
 
-    // 🔥 ========== TOP 4-10 (8 PESSOAS) ==========
+    // 🔥 7. TOP 4-10 (8 PESSOAS)
     if (players.length > 3) {
-        const listStartY = 370;
+        const listStartY = 390;
         const cols = 4;
         const smallAvatarSize = 90;
         const spacingX2 = (width - (cols * smallAvatarSize)) / (cols + 1);
@@ -267,11 +292,11 @@ async function generateRankingBanner(pathImg, players) {
             const y = listStartY + 20 + row * rowHeight;
 
             // Fundo do card
-            ctx.fillStyle = 'rgba(0, 255, 200, 0.03)';
+            ctx.fillStyle = 'rgba(255, 20, 147, 0.05)';
             roundRect(ctx, x - 5, y - 5, smallAvatarSize + 10, smallAvatarSize + 70, 10);
             ctx.fill();
 
-            // AVATAR
+            // Avatar
             try {
                 const avatar = await Canvas.loadImage(player.avatar);
                 ctx.save();
@@ -281,7 +306,7 @@ async function generateRankingBanner(pathImg, players) {
                 ctx.clip();
                 ctx.drawImage(avatar, x, y, smallAvatarSize, smallAvatarSize);
                 ctx.restore();
-                ctx.strokeStyle = 'rgba(0, 255, 200, 0.2)';
+                ctx.strokeStyle = 'rgba(255, 20, 147, 0.2)';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.arc(x + smallAvatarSize / 2, y + smallAvatarSize / 2, smallAvatarSize / 2 + 1, 0, Math.PI * 2);
@@ -289,7 +314,7 @@ async function generateRankingBanner(pathImg, players) {
             } catch (e) {
                 ctx.beginPath();
                 ctx.arc(x + smallAvatarSize / 2, y + smallAvatarSize / 2, smallAvatarSize / 2, 0, Math.PI * 2);
-                ctx.fillStyle = '#0a2e3a';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
                 ctx.fill();
                 ctx.fillStyle = '#ffffff';
                 ctx.font = '35px Arial';
@@ -310,7 +335,7 @@ async function generateRankingBanner(pathImg, players) {
             const shortName = player.name.length > 10 ? player.name.substring(0, 8) + '..' : player.name;
             ctx.fillText(shortName, x + smallAvatarSize / 2, y + smallAvatarSize + 45);
 
-            // 🔥 DINHEIRO (AGORA VISÍVEL)
+            // DINHEIRO
             ctx.fillStyle = '#00ffcc';
             ctx.font = 'bold 13px Arial';
             ctx.textAlign = 'center';
@@ -318,12 +343,13 @@ async function generateRankingBanner(pathImg, players) {
         }
     }
 
-    // 🔥 RODAPÉ
-    ctx.fillStyle = 'rgba(0, 255, 200, 0.15)';
+    // 🔥 8. RODAPÉ
+    ctx.fillStyle = 'rgba(255, 20, 147, 0.2)';
     ctx.font = '12px Arial';
     ctx.textAlign = 'right';
     ctx.fillText('✦ Hinata Bot by Gerson ✦', width - 20, height - 15);
 
+    // SALVA A IMAGEM
     const imageBuffer = canvas.toBuffer('image/png');
     fs.writeFileSync(pathImg, imageBuffer);
 }
