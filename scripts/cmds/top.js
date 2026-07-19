@@ -3,8 +3,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const axios = require('axios');
 
-// 🔥 SEU NOVO BANNER DO TOP (736x736)
-const TOP_BANNER_URL = 'https://i.postimg.cc/4yZgD1wG/IMG-20260719-193930.jpg';
+// 🔥 SUA NOVA IMAGEM PARA O TOP
+const TOP_BANNER_URL = 'https://i.postimg.cc/Gm9QC8MT/eed1085c2683f9c7695fddd93236001a.jpg';
 
 // 🔥 FUNÇÃO ROUND RECT
 function roundRect(ctx, x, y, w, h, r) {
@@ -122,7 +122,7 @@ async function generateRankingBanner(pathImg, players) {
     const canvas = Canvas.createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // 🔥 1. BAIXA O NOVO BANNER E REDIMENSIONA PARA 1200x900
+    // 🔥 1. BAIXA O BANNER E REDIMENSIONA PARA 1200x900
     try {
         const response = await axios.get(TOP_BANNER_URL, { responseType: 'arraybuffer' });
         const bannerBuffer = Buffer.from(response.data, 'utf-8');
