@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 
 // 🔥 CONFIGURAÇÕES DO GIST
-const GIST_TOKEN = 'SEU_NOVO_TOKEN_AQUI';  // 🔥 COLE O NOVO TOKEN
+const GIST_TOKEN = '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';  // 🔥 COLE O NOVO TOKEN
 const GIST_ID = '2ab732f2f9d4bfe36b15e6cfcbe3c6b1';
 
 // 🔥 CAMINHO DO ARQUIVO DE DADOS
