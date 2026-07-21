@@ -1,241 +1,241 @@
 module.exports = {
-	// You can customize the language here or directly in the command files
+	// Você pode personalizar o idioma aqui ou diretamente nos arquivos de comando
 	onlyadminbox: {
-		description: "turn on/off only admin box can use bot",
+		description: "ativar/desativar modo apenas administradores do grupo podem usar o bot",
 		guide: "   {pn} [on | off]",
 		text: {
-			turnedOn: "Turned on the mode only admin of group can use bot",
-			turnedOff: "Turned off the mode only admin of group can use bot",
-			syntaxError: "Syntax error, only use {pn} on or {pn} off"
+			turnedOn: "Modo apenas administradores do grupo podem usar o bot ATIVADO",
+			turnedOff: "Modo apenas administradores do grupo podem usar o bot DESATIVADO",
+			syntaxError: "Erro de sintaxe, use apenas {pn} on ou {pn} off"
 		}
 	},
 	adduser: {
-		description: "Add user to box chat of you",
-		guide: "   {pn} [link profile | uid]",
+		description: "Adicionar usuário ao grupo",
+		guide: "   {pn} [link do perfil | uid]",
 		text: {
-			alreadyInGroup: "Already in group",
-			successAdd: "- Successfully added %1 members to the group",
-			failedAdd: "- Failed to add %1 members to the group",
-			approve: "- Added %1 members to the approval list",
-			invalidLink: "Please enter a valid facebook link",
-			cannotGetUid: "Cannot get uid of this user",
-			linkNotExist: "This profile url does not exist",
-			cannotAddUser: "Bot is blocked or this user blocked strangers from adding to the group"
+			alreadyInGroup: "Já está no grupo",
+			successAdd: "- %1 membros adicionados com sucesso ao grupo",
+			failedAdd: "- Falha ao adicionar %1 membros ao grupo",
+			approve: "- %1 membros adicionados à lista de aprovação",
+			invalidLink: "Por favor, insira um link válido do Facebook",
+			cannotGetUid: "Não foi possível obter o UID deste usuário",
+			linkNotExist: "Este URL de perfil não existe",
+			cannotAddUser: "Bot está bloqueado ou este usuário bloqueou estranhos de adicionar ao grupo"
 		}
 	},
 	admin: {
-		description: "Add, remove, edit admin role",
-		guide: "   {pn} [add | -a] <uid>: Add admin role for user\n\t  {pn} [remove | -r] <uid>: Remove admin role of user\n\t  {pn} [list | -l]: List all admins",
+		description: "Adicionar, remover, editar função de administrador",
+		guide: "   {pn} [add | -a] <uid>: Adicionar função de administrador para usuário\n\t  {pn} [remove | -r] <uid>: Remover função de administrador do usuário\n\t  {pn} [list | -l]: Listar todos os administradores",
 		text: {
-			added: "✅ | Added admin role for %1 users:\n%2",
-			alreadyAdmin: "\n⚠️ | %1 users already have admin role:\n%2",
-			missingIdAdd: "⚠️ | Please enter ID or tag user to add admin role",
-			removed: "✅ | Removed admin role of %1 users:\n%2",
-			notAdmin: "⚠️ | %1 users don't have admin role:\n%2",
-			missingIdRemove: "⚠️ | Please enter ID or tag user to remove admin role",
-			listAdmin: "👑 | List of admins:\n%1"
+			added: "✅ | Função de administrador adicionada para %1 usuários:\n%2",
+			alreadyAdmin: "\n⚠️ | %1 usuários já possuem função de administrador:\n%2",
+			missingIdAdd: "⚠️ | Por favor, insira o ID ou marque o usuário para adicionar função de administrador",
+			removed: "✅ | Função de administrador removida de %1 usuários:\n%2",
+			notAdmin: "⚠️ | %1 usuários não possuem função de administrador:\n%2",
+			missingIdRemove: "⚠️ | Por favor, insira o ID ou marque o usuário para remover função de administrador",
+			listAdmin: "👑 | Lista de administradores:\n%1"
 		}
 	},
 	adminonly: {
-		description: "turn on/off only admin can use bot",
+		description: "ativar/desativar modo apenas administradores podem usar o bot",
 		guide: "{pn} [on | off]",
 		text: {
-			turnedOn: "Turned on the mode only admin can use bot",
-			turnedOff: "Turned off the mode only admin can use bot",
-			syntaxError: "Syntax error, only use {pn} on or {pn} off"
+			turnedOn: "Modo apenas administradores podem usar o bot ATIVADO",
+			turnedOff: "Modo apenas administradores podem usar o bot DESATIVADO",
+			syntaxError: "Erro de sintaxe, use apenas {pn} on ou {pn} off"
 		}
 	},
 	all: {
-		description: "Tag all members in your group chat",
-		guide: "{pn} [content | empty]"
+		description: "Marcar todos os membros do grupo",
+		guide: "{pn} [conteúdo | vazio]"
 	},
 	anime: {
-		description: "random anime image",
-		guide: "{pn} <endpoint>\n   List of endpoint: neko, kitsune, hug, pat, waifu, cry, kiss, slap, smug, punch",
+		description: "imagem de anime aleatória",
+		guide: "{pn} <endpoint>\n   Lista de endpoints: neko, kitsune, hug, pat, waifu, cry, kiss, slap, smug, punch",
 		text: {
-			loading: "Initializing image, please wait...",
-			error: "An error occurred, please try again later"
+			loading: "Inicializando imagem, por favor aguarde...",
+			error: "Ocorreu um erro, por favor tente novamente mais tarde"
 		}
 	},
 	antichangeinfobox: {
-		description: "Turn on/off anti change info box",
-		guide: "   {pn} avt [on | off]: anti change avatar box chat\n   {pn} name [on | off]: anti change name box chat\n   {pn} theme [on | off]: anti change theme (chủ đề) box chat\n   {pn} emoji [on | off]: anti change emoji box chat",
+		description: "Ativar/desativar anti-alteração de informações do grupo",
+		guide: "   {pn} avt [on | off]: anti-alteração de avatar do grupo\n   {pn} name [on | off]: anti-alteração de nome do grupo\n   {pn} theme [on | off]: anti-alteração de tema do grupo\n   {pn} emoji [on | off]: anti-alteração de emoji do grupo",
 		text: {
-			antiChangeAvatarOn: "Turn on anti change avatar box chat",
-			antiChangeAvatarOff: "Turn off anti change avatar box chat",
-			missingAvt: "You have not set avatar for box chat",
-			antiChangeNameOn: "Turn on anti change name box chat",
-			antiChangeNameOff: "Turn off anti change name box chat",
-			antiChangeThemeOn: "Turn on anti change theme box chat",
-			antiChangeThemeOff: "Turn off anti change theme box chat",
-			antiChangeEmojiOn: "Turn on anti change emoji box chat",
-			antiChangeEmojiOff: "Turn off anti change emoji box chat",
-			antiChangeAvatarAlreadyOn: "Your box chat is currently on anti change avatar",
-			antiChangeNameAlreadyOn: "Your box chat is currently on anti change name",
-			antiChangeThemeAlreadyOn: "Your box chat is currently on anti change theme",
-			antiChangeEmojiAlreadyOn: "Your box chat is currently on anti change emoji"
+			antiChangeAvatarOn: "Anti-alteração de avatar do grupo ATIVADO",
+			antiChangeAvatarOff: "Anti-alteração de avatar do grupo DESATIVADO",
+			missingAvt: "Você não definiu avatar para o grupo",
+			antiChangeNameOn: "Anti-alteração de nome do grupo ATIVADO",
+			antiChangeNameOff: "Anti-alteração de nome do grupo DESATIVADO",
+			antiChangeThemeOn: "Anti-alteração de tema do grupo ATIVADO",
+			antiChangeThemeOff: "Anti-alteração de tema do grupo DESATIVADO",
+			antiChangeEmojiOn: "Anti-alteração de emoji do grupo ATIVADO",
+			antiChangeEmojiOff: "Anti-alteração de emoji do grupo DESATIVADO",
+			antiChangeAvatarAlreadyOn: "Seu grupo já está com anti-alteração de avatar ativado",
+			antiChangeNameAlreadyOn: "Seu grupo já está com anti-alteração de nome ativado",
+			antiChangeThemeAlreadyOn: "Seu grupo já está com anti-alteração de tema ativado",
+			antiChangeEmojiAlreadyOn: "Seu grupo já está com anti-alteração de emoji ativado"
 		}
 	},
 	appstore: {
-		description: "Search app on appstore",
+		description: "Pesquisar aplicativo na App Store",
 		text: {
-			missingKeyword: "You haven't entered any keyword",
-			noResult: "No result found for keyword %1"
+			missingKeyword: "Você não inseriu nenhuma palavra-chave",
+			noResult: "Nenhum resultado encontrado para a palavra-chave %1"
 		}
 	},
 	autosetname: {
-		description: "Auto change nickname of new member",
-		guide: "   {pn} set <nickname>: use to set config to auto change nickname, with some shortcuts:\n   + {userName}: name of new member\n   + {userID}: member id\n   Example:\n    {pn} set {userName} 🚀\n\n   {pn} [on | off]: use to turn on/off this feature\n\n   {pn} [view | info]: show current config",
+		description: "Alterar automaticamente o apelido de novos membros",
+		guide: "   {pn} set <apelido>: usar para definir a configuração de alteração automática de apelido, com alguns atalhos:\n   + {userName}: nome do novo membro\n   + {userID}: ID do membro\n   Exemplo:\n    {pn} set {userName} 🚀\n\n   {pn} [on | off]: usar para ativar/desativar este recurso\n\n   {pn} [view | info]: mostrar configuração atual",
 		text: {
-			missingConfig: "Please enter the required configuration",
-			configSuccess: "The configuration has been set successfully",
-			currentConfig: "The current autoSetName configuration in your chat group is:\n%1",
-			notSetConfig: "Your group has not set the autoSetName configuration",
-			syntaxError: "Syntax error, only \"{pn} on\" or \"{pn} off\" can be used",
-			turnOnSuccess: "The autoSetName feature has been turned on",
-			turnOffSuccess: "The autoSetName feature has been turned off",
-			error: "An error occurred while using the autoSetName feature, try turning off the invite link feature in the group and try again later"
+			missingConfig: "Por favor, insira a configuração necessária",
+			configSuccess: "A configuração foi definida com sucesso",
+			currentConfig: "A configuração atual do autoSetName no seu grupo é:\n%1",
+			notSetConfig: "Seu grupo não definiu a configuração do autoSetName",
+			syntaxError: "Erro de sintaxe, apenas \"{pn} on\" ou \"{pn} off\" podem ser usados",
+			turnOnSuccess: "O recurso autoSetName foi ATIVADO",
+			turnOffSuccess: "O recurso autoSetName foi DESATIVADO",
+			error: "Ocorreu um erro ao usar o recurso autoSetName, tente desativar o recurso de link de convite no grupo e tente novamente mais tarde"
 		}
 	},
 	avatar: {
-		description: "create anime avatar with signature",
-		guide: "{p}{n} <character id or character name> | <background text> | <signature> | <background color name or hex color>\n{p}{n} help: view how to use this command",
+		description: "criar avatar de anime com assinatura",
+		guide: "{p}{n} <ID do personagem ou nome> | <texto de fundo> | <assinatura> | <nome da cor ou cor hex>\n{p}{n} help: ver como usar este comando",
 		text: {
-			initImage: "Initializing image, please wait...",
-			invalidCharacter: "Currently there are only %1 characters on the system, please enter a character id less than",
-			notFoundCharacter: "No character named %1 was found in the character list",
-			errorGetCharacter: "An error occurred while getting character data:\n%1: %2",
-			success: "✅ Your avatar\nCharacter: %1\nID: %2\nBackground text: %3\nSignature: %4\nColor: %5",
-			defaultColor: "default",
-			error: "An error occurred\n%1: %2"
+			initImage: "Inicializando imagem, por favor aguarde...",
+			invalidCharacter: "Atualmente existem apenas %1 personagens no sistema, por favor insira um ID de personagem menor que",
+			notFoundCharacter: "Nenhum personagem chamado %1 foi encontrado na lista de personagens",
+			errorGetCharacter: "Ocorreu um erro ao obter dados do personagem:\n%1: %2",
+			success: "✅ Seu avatar\nPersonagem: %1\nID: %2\nTexto de fundo: %3\nAssinatura: %4\nCor: %5",
+			defaultColor: "padrão",
+			error: "Ocorreu um erro\n%1: %2"
 		}
 	},
 	badwords: {
-		description: "Turn on/off/add/remove bad words warning, if a member violates, he will be warned, the second time he will be kicked out of the chat box",
-		guide: "   {pn} add <words>: add banned words (you can add multiple words separated by commas \",\" or vertical bars \"|\")\n   {pn} delete <words>: delete banned words (you can delete multiple words separated by commas \",\" or vertical bars \"|\")\n   {pn} list <hide | leave blank>: turn off warning (add \"hide\" to hide banned words)\n   {pn} unwarn [<userID> | <@tag>]: remove 1 warning of 1 member\n   {pn} on: turn off warning\n   {pn} off: turn on warning",
+		description: "Ativar/desativar/adicionar/remover aviso de palavras proibidas, se um membro violar, ele será avisado, na segunda vez será expulso do grupo",
+		guide: "   {pn} add <palavras>: adicionar palavras proibidas (você pode adicionar várias palavras separadas por vírgulas \",\" ou barras verticais \"|\")\n   {pn} delete <palavras>: deletar palavras proibidas (você pode deletar várias palavras separadas por vírgulas \",\" ou barras verticais \"|\")\n   {pn} list <hide | deixar em branco>: desativar aviso (adicione \"hide\" para esconder palavras proibidas)\n   {pn} unwarn [<userID> | <@tag>]: remover 1 aviso de 1 membro\n   {pn} on: desativar aviso\n   {pn} off: ativar aviso",
 		text: {
-			onText: "on",
-			offText: "off",
-			onlyAdmin: "⚠️ | Only admins can add banned words to the list",
-			missingWords: "⚠️ | You haven't entered the banned words",
-			addedSuccess: "✅ | Added %1 banned words to the list",
-			alreadyExist: "❌ | %1 banned words already exist in the list before: %2",
-			tooShort: "⚠️ | %1 banned words cannot be added to the list because they are shorter than 2 characters: %2",
-			onlyAdmin2: "⚠️ | Only admins can delete banned words from the list",
-			missingWords2: "⚠️ | You haven't entered the words to delete",
-			deletedSuccess: "✅ | Deleted %1 banned words from the list",
-			notExist: "❌ | %1 banned words do not exist in the list before: %2",
-			emptyList: "⚠️ | The list of banned words in your group is currently empty",
-			badWordsList: "📑 | The list of banned words in your group: %1",
-			onlyAdmin3: "⚠️ | Only admins can %1 this feature",
-			turnedOnOrOff: "✅ | Banned words warning has been %1",
-			onlyAdmin4: "⚠️ | Only admins can delete banned words warning",
-			missingTarget: "⚠️ | You haven't entered user ID or tagged user",
-			notWarned: "⚠️ | User %1 has not been warned for banned words",
-			removedWarn: "✅ | User %1 | %2 has been removed 1 banned words warning",
-			warned: "⚠️ | Banned words \"%1\" have been detected in your message, if you continue to violate you will be kicked from the group.",
-			warned2: "⚠️ | Banned words \"%1\" have been detected in your message, you have violated 2 times and will be kicked from the group.",
-			needAdmin: "Bot needs admin privileges to kick banned members",
-			unwarned: "✅ | Removed banned words warning of user %1 | %2"
+			onText: "ativado",
+			offText: "desativado",
+			onlyAdmin: "⚠️ | Apenas administradores podem adicionar palavras proibidas à lista",
+			missingWords: "⚠️ | Você não inseriu as palavras proibidas",
+			addedSuccess: "✅ | %1 palavras proibidas adicionadas à lista",
+			alreadyExist: "❌ | %1 palavras proibidas já existiam na lista antes: %2",
+			tooShort: "⚠️ | %1 palavras proibidas não podem ser adicionadas à lista porque são menores que 2 caracteres: %2",
+			onlyAdmin2: "⚠️ | Apenas administradores podem deletar palavras proibidas da lista",
+			missingWords2: "⚠️ | Você não inseriu as palavras para deletar",
+			deletedSuccess: "✅ | %1 palavras proibidas deletadas da lista",
+			notExist: "❌ | %1 palavras proibidas não existem na lista antes: %2",
+			emptyList: "⚠️ | A lista de palavras proibidas do seu grupo está vazia",
+			badWordsList: "📑 | Lista de palavras proibidas do seu grupo: %1",
+			onlyAdmin3: "⚠️ | Apenas administradores podem %1 este recurso",
+			turnedOnOrOff: "✅ | O aviso de palavras proibidas foi %1",
+			onlyAdmin4: "⚠️ | Apenas administradores podem deletar avisos de palavras proibidas",
+			missingTarget: "⚠️ | Você não inseriu ID do usuário ou marcou o usuário",
+			notWarned: "⚠️ | O usuário %1 não foi avisado por palavras proibidas",
+			removedWarn: "✅ | O usuário %1 | %2 teve 1 aviso de palavra proibida removido",
+			warned: "⚠️ | Palavras proibidas \"%1\" foram detectadas em sua mensagem, se continuar violando será expulso do grupo.",
+			warned2: "⚠️ | Palavras proibidas \"%1\" foram detectadas em sua mensagem, você violou 2 vezes e será expulso do grupo.",
+			needAdmin: "O bot precisa de privilégios de administrador para expulsar membros que violaram",
+			unwarned: "✅ | Aviso de palavra proibida do usuário %1 | %2 removido"
 		}
 	},
 	balance: {
-		description: "view your money or the money of the tagged person",
-		guide: "   {pn}: view your money\n   {pn} <@tag>: view the money of the tagged person",
+		description: "ver seu dinheiro ou o dinheiro da pessoa marcada",
+		guide: "   {pn}: ver seu dinheiro\n   {pn} <@tag>: ver o dinheiro da pessoa marcada",
 		text: {
-			money: "You have %1$",
-			moneyOf: "%1 has %2$"
+			money: "Você tem %1$",
+			moneyOf: "%1 tem %2$"
 		}
 	},
 	batslap: {
-		description: "Batslap image",
+		description: "Imagem de tapa de morcego",
 		text: {
-			noTag: "You must tag the person you want to slap"
+			noTag: "Você deve marcar a pessoa que deseja bater"
 		}
 	},
 	busy: {
-		description: "turn on do not disturb mode, when you are tagged bot will notify",
-		guide: "   {pn} [empty | <reason>]: turn on do not disturb mode\n   {pn} off: turn off do not disturb mode",
+		description: "ativar modo não perturbe, quando você for marcado o bot irá notificar",
+		guide: "   {pn} [vazio | <motivo>]: ativar modo não perturbe\n   {pn} off: desativar modo não perturbe",
 		text: {
-			turnedOff: "✅ | Do not disturb mode has been turned off",
-			turnedOn: "✅ | Do not disturb mode has been turned on",
-			turnedOnWithReason: "✅ | Do not disturb mode has been turned on with reason: %1",
-			alreadyOn: "User %1 is currently busy",
-			alreadyOnWithReason: "User %1 is currently busy with reason: %2"
+			turnedOff: "✅ | Modo não perturbe foi DESATIVADO",
+			turnedOn: "✅ | Modo não perturbe foi ATIVADO",
+			turnedOnWithReason: "✅ | Modo não perturbe foi ATIVADO com motivo: %1",
+			alreadyOn: "O usuário %1 está ocupado no momento",
+			alreadyOnWithReason: "O usuário %1 está ocupado no momento com motivo: %2"
 		}
 	},
 	callad: {
-		description: "send report, feedback, bug,... to admin bot",
-		guide: "   {pn} <message>",
+		description: "enviar relatório, feedback, bug,... para o administrador do bot",
+		guide: "   {pn} <mensagem>",
 		text: {
-			missingMessage: "Please enter the message you want to send to admin",
-			sendByGroup: "\n- Sent from group: %1\n- Thread ID: %2",
-			sendByUser: "\n- Sent from user",
-			content: "\n\nContent:\n─────────────────\n%1\n─────────────────\nReply this message to send message to user",
-			success: "Sent your message to admin successfully!",
-			reply: "📍 Reply from admin %1:\n─────────────────\n%2\n─────────────────\nReply this message to continue send message to admin",
-			replySuccess: "Sent your reply to admin successfully!",
-			feedback: "📝 Feedback from user %1:\n- User ID: %2%3\n\nContent:\n─────────────────\n%4\n─────────────────\nReply this message to send message to user",
-			replyUserSuccess: "Sent your reply to user successfully!"
+			missingMessage: "Por favor, insira a mensagem que deseja enviar para o administrador",
+			sendByGroup: "\n- Enviado do grupo: %1\n- ID do grupo: %2",
+			sendByUser: "\n- Enviado pelo usuário",
+			content: "\n\nConteúdo:\n─────────────────\n%1\n─────────────────\nResponda esta mensagem para enviar mensagem para o usuário",
+			success: "Sua mensagem foi enviada para o administrador com sucesso!",
+			reply: "📍 Resposta do administrador %1:\n─────────────────\n%2\n─────────────────\nResponda esta mensagem para continuar enviando para o administrador",
+			replySuccess: "Sua resposta foi enviada para o administrador com sucesso!",
+			feedback: "📝 Feedback do usuário %1:\n- ID do usuário: %2%3\n\nConteúdo:\n─────────────────\n%4\n─────────────────\nResponda esta mensagem para enviar mensagem para o usuário",
+			replyUserSuccess: "Sua resposta foi enviada para o usuário com sucesso!"
 		}
 	},
 	cmd: {
-		description: "Manage your command files",
-		guide: "{pn} load <command file name>\n{pn} loadAll\n{pn} install <url> <command file name>: Download and install a command file from a url, url is the path to the file (raw)",
+		description: "Gerenciar seus arquivos de comando",
+		guide: "{pn} load <nome do arquivo>\n{pn} loadAll\n{pn} install <url> <nome do arquivo>: Baixar e instalar um arquivo de comando de uma url, url é o caminho para o arquivo (raw)",
 		text: {
-			missingFileName: "⚠️ | Please enter the command name you want to reload",
-			loaded: "✅ | Loaded command \"%1\" successfully",
-			loadedError: "❌ | Failed to load command \"%1\" with error\n%2: %3",
-			loadedSuccess: "✅ | Loaded successfully \"%1\" command",
-			loadedFail: "❌ | Failed to load \"%1\" command\n%2",
-			missingCommandNameUnload: "⚠️ | Please enter the command name you want to unload",
-			unloaded: "✅ | Unloaded command \"%1\" successfully",
-			unloadedError: "❌ | Failed to unload command \"%1\" with error\n%2: %3",
-			missingUrlCodeOrFileName: "⚠️ | Please enter the url or code and command file name you want to install",
-			missingUrlOrCode: "⚠️ | Please enter the url or code of the command file you want to install",
-			missingFileNameInstall: "⚠️ | Please enter the file name to save the command (with .js extension)",
-			invalidUrlOrCode: "⚠️ | Unable to get command code",
-			alreadExist: "⚠️ | The command file already exists, are you sure you want to overwrite the old command file?\nReact to this message to continue",
-			installed: "✅ | Installed command \"%1\" successfully, the command file is saved at %2",
-			installedError: "❌ | Failed to install command \"%1\" with error\n%2: %3",
-			missingFile: "⚠️ | Command file \"%1\" not found",
-			invalidFileName: "⚠️ | Invalid command file name",
-			unloadedFile: "✅ | Unloaded command \"%1\""
+			missingFileName: "⚠️ | Por favor, insira o nome do comando que deseja recarregar",
+			loaded: "✅ | Comando \"%1\" carregado com sucesso",
+			loadedError: "❌ | Falha ao carregar o comando \"%1\" com erro\n%2: %3",
+			loadedSuccess: "✅ | Comando \"%1\" carregado com sucesso",
+			loadedFail: "❌ | Falha ao carregar o comando \"%1\"\n%2",
+			missingCommandNameUnload: "⚠️ | Por favor, insira o nome do comando que deseja descarregar",
+			unloaded: "✅ | Comando \"%1\" descarregado com sucesso",
+			unloadedError: "❌ | Falha ao descarregar o comando \"%1\" com erro\n%2: %3",
+			missingUrlCodeOrFileName: "⚠️ | Por favor, insira a url ou código e o nome do arquivo de comando que deseja instalar",
+			missingUrlOrCode: "⚠️ | Por favor, insira a url ou código do arquivo de comando que deseja instalar",
+			missingFileNameInstall: "⚠️ | Por favor, insira o nome do arquivo para salvar o comando (com extensão .js)",
+			invalidUrlOrCode: "⚠️ | Não foi possível obter o código do comando",
+			alreadExist: "⚠️ | O arquivo de comando já existe, tem certeza que deseja sobrescrever o arquivo antigo?\nReaja a esta mensagem para continuar",
+			installed: "✅ | Comando \"%1\" instalado com sucesso, o arquivo está salvo em %2",
+			installedError: "❌ | Falha ao instalar o comando \"%1\" com erro\n%2: %3",
+			missingFile: "⚠️ | Arquivo de comando \"%1\" não encontrado",
+			invalidFileName: "⚠️ | Nome de arquivo inválido",
+			unloadedFile: "✅ | Comando \"%1\" descarregado"
 		}
 	},
 	count: {
-		description: "View the number of messages of all members or yourself (since the bot joined the group)",
-		guide: "   {pn}: used to view the number of messages of you\n   {pn} @tag: used to view the number of messages of those tagged\n   {pn} all: used to view the number of messages of all members",
+		description: "Ver o número de mensagens de todos os membros ou de você mesmo (desde que o bot entrou no grupo)",
+		guide: "   {pn}: usado para ver o número de mensagens suas\n   {pn} @tag: usado para ver o número de mensagens dos marcados\n   {pn} all: usado para ver o número de mensagens de todos os membros",
 		text: {
-			count: "Number of messages of members:",
-			endMessage: "Those who do not have a name in the list have not sent any messages.",
-			page: "Page [%1/%2]",
-			reply: "Reply to this message with the page number to view more",
-			result: "%1 rank %2 with %3 messages",
-			yourResult: "You are ranked %1 and have sent %2 messages in this group",
-			invalidPage: "Invalid page number"
+			count: "Número de mensagens dos membros:",
+			endMessage: "Aqueles que não têm nome na lista não enviaram nenhuma mensagem.",
+			page: "Página [%1/%2]",
+			reply: "Responda a esta mensagem com o número da página para ver mais",
+			result: "%1 classificado em %2 com %3 mensagens",
+			yourResult: "Você está classificado em %1 e enviou %2 mensagens neste grupo",
+			invalidPage: "Número de página inválido"
 		}
 	},
 	customrankcard: {
-		description: "Design rank card by your own",
+		description: "Personalize seu cartão de classificação",
 		guide: {
-			body: "   {pn} [maincolor | subcolor | linecolor | progresscolor | alphasubcolor | textcolor | namecolor | expcolor | rankcolor | levelcolor | reset] <value>"
-				+ "\n   In which: "
-				+ "\n  + maincolor | background <value>: main background of rank card"
-				+ "\n  + subcolor <value>: sub background"
-				+ "\n  + linecolor <value>: color of line between main and sub background"
-				+ "\n  + expbarcolor <value>: color of exp bar"
-				+ "\n  + progresscolor <value>: color of current exp bar"
-				+ "\n  + alphasubcolor <value>: opacity of sub background (from 0 -> 1)"
-				+ "\n  + textcolor <value>: color of text (hex color or rgba)"
-				+ "\n  + namecolor <value>: color of name"
-				+ "\n  + expcolor <value>: color of exp"
-				+ "\n  + rankcolor <value>: color of rank"
-				+ "\n  + levelcolor <value>: color of level"
-				+ "\n    • <value> can be hex color, rgb, rgba, gradient (each color is separated by space) or image url"
-				+ "\n    • If you want to use gradient, please enter many colors separated by space"
-				+ "\n   {pn} reset: reset all to default"
-				+ "\n   Example:"
+			body: "   {pn} [maincolor | subcolor | linecolor | progresscolor | alphasubcolor | textcolor | namecolor | expcolor | rankcolor | levelcolor | reset] <valor>"
+				+ "\n   Onde: "
+				+ "\n  + maincolor | background <valor>: fundo principal do cartão"
+				+ "\n  + subcolor <valor>: fundo secundário"
+				+ "\n  + linecolor <valor>: cor da linha entre o fundo principal e secundário"
+				+ "\n  + expbarcolor <valor>: cor da barra de experiência"
+				+ "\n  + progresscolor <valor>: cor da barra de experiência atual"
+				+ "\n  + alphasubcolor <valor>: opacidade do fundo secundário (de 0 -> 1)"
+				+ "\n  + textcolor <valor>: cor do texto (cor hex ou rgba)"
+				+ "\n  + namecolor <valor>: cor do nome"
+				+ "\n  + expcolor <valor>: cor da experiência"
+				+ "\n  + rankcolor <valor>: cor da classificação"
+				+ "\n  + levelcolor <valor>: cor do nível"
+				+ "\n    • <valor> pode ser cor hex, rgb, rgba, gradiente (cada cor separada por espaço) ou url de imagem"
+				+ "\n    • Se quiser usar gradiente, insira várias cores separadas por espaço"
+				+ "\n   {pn} reset: redefinir tudo para o padrão"
+				+ "\n   Exemplo:"
 				+ "\n    {pn} maincolor #fff000"
 				+ "\n    {pn} subcolor rgba(255,136,86,0.4)"
 				+ "\n    {pn} reset",
@@ -245,462 +245,462 @@ module.exports = {
 			}
 		},
 		text: {
-			invalidImage: "Invalid image url, please choose an url with image destination (jpg, jpeg, png, gif), you can upload image to https://imgbb.com/ and choose \"get direct link\" to get image url",
-			invalidAttachment: "Invalid attachment, please choose an image file",
-			invalidColor: "Invalid color code, please choose a hex color code (6 digits) or rgba color code",
-			notSupportImage: "Url image is not supported with option \"%1\"",
-			success: "Your changes have been saved, here is a preview",
-			reseted: "All settings have been reset to default",
-			invalidAlpha: "Please choose a number from 0 -> 1"
+			invalidImage: "URL de imagem inválida, escolha uma URL com destino de imagem (jpg, jpeg, png, gif), você pode enviar a imagem para https://imgbb.com/ e escolher \"obter link direto\" para obter a URL",
+			invalidAttachment: "Anexo inválido, escolha um arquivo de imagem",
+			invalidColor: "Código de cor inválido, escolha um código de cor hex (6 dígitos) ou rgba",
+			notSupportImage: "URL de imagem não é suportada com a opção \"%1\"",
+			success: "Suas alterações foram salvas, aqui está uma prévia",
+			reseted: "Todas as configurações foram redefinidas para o padrão",
+			invalidAlpha: "Escolha um número de 0 -> 1"
 		}
 	},
 	dhbc: {
-		description: "play game catch the word",
+		description: "jogo de adivinhação de palavras",
 		guide: "{pn}",
 		text: {
-			reply: "Please reply this message with the answer\n%1",
-			isSong: "This is the name of the song of the singer %1",
-			notPlayer: "⚠️ You are not the player of this question",
-			correct: "🎉 Congratulations you have answered correctly and received %1$",
-			wrong: "⚠️ You have answered incorrectly"
+			reply: "Por favor, responda esta mensagem com a resposta\n%1",
+			isSong: "Este é o nome da música do cantor %1",
+			notPlayer: "⚠️ Você não é o jogador desta pergunta",
+			correct: "🎉 Parabéns, você respondeu corretamente e recebeu %1$",
+			wrong: "⚠️ Você respondeu incorretamente"
 		}
 	},
 	emojimix: {
-		description: "Mix 2 emoji together",
-		guide: "   {pn} <emoji1> <emoji2>\n   Example:  {pn} 🤣 🥰"
+		description: "Misturar 2 emojis",
+		guide: "   {pn} <emoji1> <emoji2>\n   Exemplo:  {pn} 🤣 🥰"
 	},
 	eval: {
-		description: "Test code quickly",
-		guide: "{pn} <code to test>",
+		description: "Testar código rapidamente",
+		guide: "{pn} <código para testar>",
 		text: {
-			error: "❌ An error occurred:"
+			error: "❌ Ocorreu um erro:"
 		}
 	},
 	event: {
-		description: "Manage your event command files",
-		guide: "{pn} load <command file name>\n{pn} loadAll\n{pn} install <url> <command file name>: Download and load event command, url is the path to the command file (raw)",
+		description: "Gerenciar seus arquivos de comando de evento",
+		guide: "{pn} load <nome do arquivo>\n{pn} loadAll\n{pn} install <url> <nome do arquivo>: Baixar e carregar comando de evento, url é o caminho para o arquivo de comando (raw)",
 		text: {
-			missingFileName: "⚠️ | Please enter the command name you want to reload",
-			loaded: "✅ | Loaded event command \"%1\" successfully",
-			loadedError: "❌ | Loaded event command \"%1\" failed with error\n%2: %3",
-			loadedSuccess: "✅ | Loaded \"%1\" event command successfully",
-			loadedFail: "❌ | Loaded event command \"%1\" failed\n%2",
-			missingCommandNameUnload: "⚠️ | Please enter the command name you want to unload",
-			unloaded: "✅ | Unloaded event command \"%1\" successfully",
-			unloadedError: "❌ | Unloaded event command \"%1\" failed with error\n%2: %3",
-			missingUrlCodeOrFileName: "⚠️ | Please enter the url or code and command file name you want to install",
-			missingUrlOrCode: "⚠️ | Please enter the url or code of the command file you want to install",
-			missingFileNameInstall: "⚠️ | Please enter the file name to save the command (with .js extension)",
-			invalidUrlOrCode: "⚠️ | Unable to get command code",
-			alreadExist: "⚠️ | The command file already exists, are you sure you want to overwrite the old command file?\nReact to this message to continue",
-			installed: "✅ | Installed event command \"%1\" successfully, the command file is saved at %2",
-			installedError: "❌ | Installed event command \"%1\" failed with error\n%2: %3",
-			missingFile: "⚠️ | File \"%1\" not found",
-			invalidFileName: "⚠️ | Invalid file name",
-			unloadedFile: "✅ | Unloaded command \"%1\""
+			missingFileName: "⚠️ | Por favor, insira o nome do comando que deseja recarregar",
+			loaded: "✅ | Comando de evento \"%1\" carregado com sucesso",
+			loadedError: "❌ | Falha ao carregar o comando de evento \"%1\" com erro\n%2: %3",
+			loadedSuccess: "✅ | Comando de evento \"%1\" carregado com sucesso",
+			loadedFail: "❌ | Falha ao carregar o comando de evento \"%1\"\n%2",
+			missingCommandNameUnload: "⚠️ | Por favor, insira o nome do comando que deseja descarregar",
+			unloaded: "✅ | Comando de evento \"%1\" descarregado com sucesso",
+			unloadedError: "❌ | Falha ao descarregar o comando de evento \"%1\" com erro\n%2: %3",
+			missingUrlCodeOrFileName: "⚠️ | Por favor, insira a url ou código e o nome do arquivo de comando que deseja instalar",
+			missingUrlOrCode: "⚠️ | Por favor, insira a url ou código do arquivo de comando que deseja instalar",
+			missingFileNameInstall: "⚠️ | Por favor, insira o nome do arquivo para salvar o comando (com extensão .js)",
+			invalidUrlOrCode: "⚠️ | Não foi possível obter o código do comando",
+			alreadExist: "⚠️ | O arquivo de comando já existe, tem certeza que deseja sobrescrever o arquivo antigo?\nReaja a esta mensagem para continuar",
+			installed: "✅ | Comando de evento \"%1\" instalado com sucesso, o arquivo está salvo em %2",
+			installedError: "❌ | Falha ao instalar o comando de evento \"%1\" com erro\n%2: %3",
+			missingFile: "⚠️ | Arquivo \"%1\" não encontrado",
+			invalidFileName: "⚠️ | Nome de arquivo inválido",
+			unloadedFile: "✅ | Comando \"%1\" descarregado"
 		}
 	},
 	filteruser: {
-		description: "filter group members by number of messages or locked account",
-		guide: "   {pn} [<number of messages> | die]",
+		description: "filtrar membros do grupo por número de mensagens ou conta bloqueada",
+		guide: "   {pn} [<número de mensagens> | die]",
 		text: {
-			needAdmin: "⚠️ | Please add the bot as a group admin to use this command",
-			confirm: "⚠️ | Are you sure you want to delete group members with less than %1 messages?\nReact to this message to confirm",
-			kickByBlock: "✅ | Successfully deleted %1 members who are locked acc",
-			kickByMsg: "✅ | Successfully deleted %1 members with less than %2 messages",
-			kickError: "❌ | An error occurred and could not kick %1 members:\n%2",
-			noBlock: "✅ | There are no members who are locked acc",
-			noMsg: "✅ | There are no members with less than %1 messages"
+			needAdmin: "⚠️ | Adicione o bot como administrador do grupo para usar este comando",
+			confirm: "⚠️ | Tem certeza que deseja deletar membros do grupo com menos de %1 mensagens?\nReaja a esta mensagem para confirmar",
+			kickByBlock: "✅ | %1 membros com conta bloqueada foram deletados com sucesso",
+			kickByMsg: "✅ | %1 membros com menos de %2 mensagens foram deletados com sucesso",
+			kickError: "❌ | Ocorreu um erro e não foi possível expulsar %1 membros:\n%2",
+			noBlock: "✅ | Não há membros com conta bloqueada",
+			noMsg: "✅ | Não há membros com menos de %1 mensagens"
 		}
 	},
 	getfbstate: {
-		description: "Get current fbstate",
+		description: "Obter o fbstate atual",
 		guide: "{pn}",
 		text: {
-			success: "Sent fbstate to you, please check bot's private message"
+			success: "Fbstate enviado para você, verifique a mensagem privada do bot"
 		}
 	},
 	grouptag: {
-		description: "Tag members by group",
-		guide: "   {pn} add <groupTagName> <@tags>: use to add new group tag or add members to group tag\n   Example:\n    {pn} TEAM1 @tag1 @tag2\n\n   {pn} del <groupTagName> <@tags>: use to remove members from group tag\n   Example:\n    {pn} del TEAM1 @tag1 @tag2\n\n   {pn} remove <groupTagName>: use to remove group tag\n   Example:\n    {pn} remove TEAM1\n\n   {pn} rename <groupTagName> | <newGroupTagName>: use to rename group tag\n\n   {pn} [list | all]: use to view list of group tag in your group chat\n\n   {pn} info <groupTagName>: use to view info of group tag",
+		description: "Marcar membros por grupo de marcação",
+		guide: "   {pn} add <nomeDoGrupo> <@tags>: usar para adicionar novo grupo de marcação ou adicionar membros ao grupo\n   Exemplo:\n    {pn} TEAM1 @tag1 @tag2\n\n   {pn} del <nomeDoGrupo> <@tags>: usar para remover membros do grupo de marcação\n   Exemplo:\n    {pn} del TEAM1 @tag1 @tag2\n\n   {pn} remove <nomeDoGrupo>: usar para remover grupo de marcação\n   Exemplo:\n    {pn} remove TEAM1\n\n   {pn} rename <nomeDoGrupo> | <novoNome>: usar para renomear grupo de marcação\n\n   {pn} [list | all]: usar para ver a lista de grupos de marcação no seu grupo\n\n   {pn} info <nomeDoGrupo>: usar para ver informações do grupo de marcação",
 		text: {
-			noGroupTagName: "Please enter group tag name",
-			noMention: "You haven't tagged any member to add to group tag",
-			addedSuccess: "Added members:\n%1\nto group tag \"%2\"",
-			addedSuccess2: "Added group tag \"%1\" with members:\n%2",
-			existedInGroupTag: "Members:\n%1\nalready existed in group tag \"%2\"",
-			notExistedInGroupTag: "Members:\n%1\ndoesn't exist in group tag \"%2\"",
-			noExistedGroupTag: "Group tag \"%1\" doesn't exist in your group chat",
-			noExistedGroupTag2: "Your group chat hasn't added any group tag",
-			noMentionDel: "Please tag members to remove from group tag \"%1\"",
-			deletedSuccess: "Deleted members:\n%1\nfrom group tag \"%2\"",
-			deletedSuccess2: "Deleted group tag \"%1\"",
-			tagged: "Tag group \"%1\":\n%2",
-			noGroupTagName2: "Please enter old group tag name and new group tag name, separated by \"|\"",
-			renamedSuccess: "Renamed group tag \"%1\" to \"%2\"",
-			infoGroupTag: "📑 | Group name: \"%1\"\n👥 | Number of members: %2\n👨‍👩‍👧‍👦 | List of members:\n %3"
+			noGroupTagName: "Por favor, insira o nome do grupo de marcação",
+			noMention: "Você não marcou nenhum membro para adicionar ao grupo",
+			addedSuccess: "Membros adicionados:\n%1\nao grupo de marcação \"%2\"",
+			addedSuccess2: "Grupo de marcação \"%1\" adicionado com membros:\n%2",
+			existedInGroupTag: "Membros:\n%1\njá existiam no grupo de marcação \"%2\"",
+			notExistedInGroupTag: "Membros:\n%1\nnão existem no grupo de marcação \"%2\"",
+			noExistedGroupTag: "O grupo de marcação \"%1\" não existe no seu grupo",
+			noExistedGroupTag2: "Seu grupo ainda não adicionou nenhum grupo de marcação",
+			noMentionDel: "Por favor, marque os membros para remover do grupo de marcação \"%1\"",
+			deletedSuccess: "Membros removidos:\n%1\ndo grupo de marcação \"%2\"",
+			deletedSuccess2: "Grupo de marcação \"%1\" removido",
+			tagged: "Marcar grupo \"%1\":\n%2",
+			noGroupTagName2: "Por favor, insira o nome antigo e o novo nome do grupo de marcação, separados por \"|\"",
+			renamedSuccess: "Grupo de marcação renomeado de \"%1\" para \"%2\"",
+			infoGroupTag: "📑 | Nome do grupo: \"%1\"\n👥 | Número de membros: %2\n👨‍👩‍👧‍👦 | Lista de membros:\n %3"
 		}
 	},
 	help: {
-		description: "View command usage",
-		guide: "{pn} [empty | <page number> | <command name>]",
+		description: "Ver como usar os comandos",
+		guide: "{pn} [vazio | <número da página> | <nome do comando>]",
 		text: {
-			help: "╭─────────────⭓\n%1\n├─────⭔\n│ Page [ %2/%3 ]\n│ Currently, the bot has %4 commands that can be used\n│ » Type %5help <page> to view the command list\n│ » Type %5help to view the details of how to use that command\n├────────⭔\n│ %6\n╰─────────────⭓",
-			help2: "%1├───────⭔\n│ » Currently, the bot has %2 commands that can be used\n│ » Type %3help <command name> to view the details of how to use that command\n│ %4\n╰─────────────⭓",
-			commandNotFound: "Command \"%1\" does not exist",
-			getInfoCommand: "╭── NAME ────⭓\n│ %1\n├── INFO\n│ Description: %2\n│ Other names: %3\n│ Other names in your group: %4\n│ Version: %5\n│ Role: %6\n│ Time per command: %7s\n│ Author: %8\n├── Usage\n%9\n├── Notes\n│ The content inside <XXXXX> can be changed\n│ The content inside [a|b|c] is a or b or c\n╰──────⭔",
-			doNotHave: "Do not have",
-			roleText0: "0 (All users)",
-			roleText1: "1 (Group administrators)",
-			roleText2: "2 (Admin bot)",
-			roleText0setRole: "0 (set role, all users)",
-			roleText1setRole: "1 (set role, group administrators)",
-			pageNotFound: "Page %1 does not exist"
+			help: "╭─────────────⭓\n%1\n├─────⭔\n│ Página [ %2/%3 ]\n│ Atualmente, o bot possui %4 comandos disponíveis\n│ » Digite %5help <página> para ver a lista de comandos\n│ » Digite %5help <nome do comando> para ver detalhes de uso\n├────────⭔\n│ %6\n╰─────────────⭓",
+			help2: "%1├───────⭔\n│ » Atualmente, o bot possui %2 comandos disponíveis\n│ » Digite %3help <nome do comando> para ver detalhes de uso\n│ %4\n╰─────────────⭓",
+			commandNotFound: "O comando \"%1\" não existe",
+			getInfoCommand: "╭── NOME ────⭓\n│ %1\n├── INFORMAÇÕES\n│ Descrição: %2\n│ Outros nomes: %3\n│ Outros nomes no seu grupo: %4\n│ Versão: %5\n│ Função: %6\n│ Tempo por comando: %7s\n│ Autor: %8\n├── USO\n%9\n├── NOTAS\n│ O conteúdo dentro de <XXXXX> pode ser alterado\n│ O conteúdo dentro de [a|b|c] é a ou b ou c\n╰──────⭔",
+			doNotHave: "Não tem",
+			roleText0: "0 (Todos os usuários)",
+			roleText1: "1 (Administradores do grupo)",
+			roleText2: "2 (Administrador do bot)",
+			roleText0setRole: "0 (definir função, todos os usuários)",
+			roleText1setRole: "1 (definir função, administradores do grupo)",
+			pageNotFound: "A página %1 não existe"
 		}
 	},
 	kick: {
-		description: "Kick member out of chat box",
-		guide: "{pn} @tags: use to kick members who are tagged"
+		description: "Expulsar membro do grupo",
+		guide: "{pn} @tags: usar para expulsar os membros marcados"
 	},
 	loadconfig: {
-		description: "Reload config of bot"
+		description: "Recarregar a configuração do bot"
 	},
 	moon: {
-		description: "view moon image on the night you choose (dd/mm/yyyy)",
-		guide: "  {pn} <day/month/year>\n   {pn} <day/month/year> <caption>",
+		description: "ver imagem da lua na noite escolhida (dd/mm/aaaa)",
+		guide: "  {pn} <dia/mês/ano>\n   {pn} <dia/mês/ano> <legenda>",
 		text: {
-			invalidDateFormat: "Please enter a valid date in DD/MM/YYYY format",
-			error: "An error occurred while getting the moon image of %1",
-			invalidDate: "%1 is not a valid date",
-			caption: "- Moon image on %1"
+			invalidDateFormat: "Por favor, insira uma data válida no formato DD/MM/AAAA",
+			error: "Ocorreu um erro ao obter a imagem da lua de %1",
+			invalidDate: "%1 não é uma data válida",
+			caption: "- Imagem da lua em %1"
 		}
 	},
 	notification: {
-		description: "Send notification from admin to all box",
-		guide: "{pn} <tin nhắn>",
+		description: "Enviar notificação do administrador para todos os grupos",
+		guide: "{pn} <mensagem>",
 		text: {
-			missingMessage: "Please enter the message you want to send to all groups",
-			notification: "Notification from admin bot to all chat groups (do not reply to this message)",
-			sendingNotification: "Start sending notification from admin bot to %1 chat groups",
-			sentNotification: "✅ Sent notification to %1 groups successfully",
-			errorSendingNotification: "An error occurred while sending to %1 groups:\n %2"
+			missingMessage: "Por favor, insira a mensagem que deseja enviar para todos os grupos",
+			notification: "Notificação do administrador do bot para todos os grupos (não responda a esta mensagem)",
+			sendingNotification: "Iniciando envio de notificação do administrador para %1 grupos",
+			sentNotification: "✅ Notificação enviada para %1 grupos com sucesso",
+			errorSendingNotification: "Ocorreu um erro ao enviar para %1 grupos:\n %2"
 		}
 	},
 	prefix: {
-		description: "Thay đổi dấu lệnh của bot trong box chat của bạn hoặc cả hệ thống bot (chỉ admin bot)",
-		guide: "   {pn} <new prefix>: change new prefix in your box chat\n   Example:\n    {pn} #\n\n   {pn} <new prefix> -g: change new prefix in system bot (only admin bot)\n   Example:\n    {pn} # -g\n\n   {pn} reset: change prefix in your box chat to default",
+		description: "Alterar o prefixo do bot no seu grupo ou em todo o sistema (apenas administrador do bot)",
+		guide: "   {pn} <novo prefixo>: alterar prefixo no seu grupo\n   Exemplo:\n    {pn} #\n\n   {pn} <novo prefixo> -g: alterar prefixo em todo o sistema (apenas administrador do bot)\n   Exemplo:\n    {pn} # -g\n\n   {pn} reset: redefinir prefixo do seu grupo para o padrão",
 		text: {
-			reset: "Your prefix has been reset to default: %1",
-			onlyAdmin: "Only admin can change prefix of system bot",
-			confirmGlobal: "Please react to this message to confirm change prefix of system bot",
-			confirmThisThread: "Please react to this message to confirm change prefix in your box chat",
-			successGlobal: "Changed prefix of system bot to: %1",
-			successThisThread: "Changed prefix in your box chat to: %1",
-			myPrefix: "🌐 System prefix: %1\n🛸 Your box chat prefix: %2"
+			reset: "Seu prefixo foi redefinido para o padrão: %1",
+			onlyAdmin: "Apenas administradores podem alterar o prefixo do sistema",
+			confirmGlobal: "Reaja a esta mensagem para confirmar a alteração do prefixo do sistema",
+			confirmThisThread: "Reaja a esta mensagem para confirmar a alteração do prefixo no seu grupo",
+			successGlobal: "Prefixo do sistema alterado para: %1",
+			successThisThread: "Prefixo do seu grupo alterado para: %1",
+			myPrefix: "🌐 Prefixo do sistema: %1\n🛸 Prefixo do seu grupo: %2"
 		}
 	},
 	rank: {
-		description: "View your level or the level of the tagged person. You can tag many people"
+		description: "Ver seu nível ou o nível da pessoa marcada. Você pode marcar várias pessoas"
 	},
 	rankup: {
-		description: "Turn on/off level up notification",
+		description: "Ativar/desativar notificação de subida de nível",
 		guide: "{pn} [on | off]",
 		text: {
-			syntaxError: "Syntax error, only use {pn} on or {pn} off",
-			turnedOn: "Turned on level up notification",
-			turnedOff: "Turned off level up notification",
-			notiMessage: "🎉🎉 Congratulations on reaching level %1"
+			syntaxError: "Erro de sintaxe, use apenas {pn} on ou {pn} off",
+			turnedOn: "Notificação de subida de nível ATIVADA",
+			turnedOff: "Notificação de subida de nível DESATIVADA",
+			notiMessage: "🎉🎉 Parabéns por atingir o nível %1"
 		}
 	},
 	refresh: {
-		description: "refresh information of group chat or user",
-		guide: "   {pn} [thread | group]: refresh information of your group chat\n   {pn} group <threadID>: refresh information of group chat by ID\n\n   {pn} user: refresh information of your user\n   {pn} user [<userID> | @tag]: refresh information of user by ID",
+		description: "atualizar informações do grupo ou usuário",
+		guide: "   {pn} [thread | group]: atualizar informações do seu grupo\n   {pn} group <threadID>: atualizar informações do grupo por ID\n\n   {pn} user: atualizar informações do seu usuário\n   {pn} user [<userID> | @tag]: atualizar informações do usuário por ID",
 		text: {
-			refreshMyThreadSuccess: "✅ | Refresh information of your group chat successfully!",
-			refreshThreadTargetSuccess: "✅ | Refresh information of group chat %1 successfully!"
+			refreshMyThreadSuccess: "✅ | Informações do seu grupo atualizadas com sucesso!",
+			refreshThreadTargetSuccess: "✅ | Informações do grupo %1 atualizadas com sucesso!"
 		}
 	},
 	rules: {
-		description: "Create/view/add/edit/change position/delete group rules of you",
-		guide: "   {pn} [add | -a] <rule to add>: add rule for group.\n   {pn}: view group rules.\n   {pn} [edit | -e] <n> <content after edit>: edit rule number n.\n   {pn} [move | -m] <stt1> <stt2> swap position of rule number <stt1> and <stt2>.\n   {pn} [delete | -d] <n>: delete rule number n.\n   {pn} [remove | -r]: delete all rules of group.\n\n   Example:\n    {pn} add don't spam\n    {pn} move 1 3\n    {pn} -e 1 don't spam message in group\n    {pn} -r"
+		description: "Criar/ver/adicionar/editar/alterar posição/deletar regras do grupo",
+		guide: "   {pn} [add | -a] <regra a adicionar>: adicionar regra para o grupo.\n   {pn}: ver regras do grupo.\n   {pn} [edit | -e] <n> <conteúdo após editar>: editar regra número n.\n   {pn} [move | -m] <stt1> <stt2> trocar posição da regra <stt1> e <stt2>.\n   {pn} [delete | -d] <n>: deletar regra número n.\n   {pn} [remove | -r]: deletar todas as regras do grupo.\n\n   Exemplo:\n    {pn} add não spam\n    {pn} move 1 3\n    {pn} -e 1 não enviar spam no grupo\n    {pn} -r"
 	},
 	sendnoti: {
-		description: "Create and send notification to groups that you manage",
-		guide: "   {pn} create <groupName>: Create a new notification group with name <groupName>\n   Example:\n    {pn} create TEAM1\n\n   {pn} add <groupName>: add current box chat to notification group <groupName> (you must be admin of this box chat)\n   Example:\n    {pn} add TEAM1\n\n   {pn} delete: remove current box chat from notification group <groupName> (you must be creator of this group)\n   Example:\n    {pn} delete TEAM1\n\n   {pn} send <groupName> | <message>: send notification to all groups in notification group <groupName> (you must be admin of those groups)\n   Example:\n    {pn} remove TEAM1\n\n   {pn} remove <groupName>: remove notification group <groupName> (you must be creator of notification group <groupName>)\n   Example:\n    {pn} remove TEAM1",
+		description: "Criar e enviar notificações para grupos que você gerencia",
+		guide: "   {pn} create <nomeDoGrupo>: Criar um novo grupo de notificação com o nome <nomeDoGrupo>\n   Exemplo:\n    {pn} create TEAM1\n\n   {pn} add <nomeDoGrupo>: adicionar o grupo atual ao grupo de notificação <nomeDoGrupo> (você deve ser administrador deste grupo)\n   Exemplo:\n    {pn} add TEAM1\n\n   {pn} delete: remover o grupo atual do grupo de notificação <nomeDoGrupo> (você deve ser o criador deste grupo)\n   Exemplo:\n    {pn} delete TEAM1\n\n   {pn} send <nomeDoGrupo> | <mensagem>: enviar notificação para todos os grupos no grupo de notificação <nomeDoGrupo> (você deve ser administrador desses grupos)\n   Exemplo:\n    {pn} remove TEAM1\n\n   {pn} remove <nomeDoGrupo>: remover o grupo de notificação <nomeDoGrupo> (você deve ser o criador do grupo de notificação <nomeDoGrupo>)\n   Exemplo:\n    {pn} remove TEAM1",
 		text: {
-			missingGroupName: "Please enter groupNoti name",
-			groupNameExists: "Notification group with name %1 has been created by you before, please choose another name",
-			createdGroup: "Created notification group successfully:\n- Name: %1\n- ID: %2",
-			missingGroupNameToAdd: "Please enter groupNoti name you want to add this group chat to",
-			groupNameNotExists: "You have not created/manage any notification group with name: %1",
-			notAdmin: "You are not admin of this group chat",
-			added: "Added current group chat to notification group: %1",
-			missingGroupNameToDelete: "Please enter groupNoti name you want to delete this group chat from list",
-			notInGroup: "Current group chat is not in notification group %1",
-			deleted: "Deleted current group chat from notification group: %1",
-			failed: "Failed to send notification to %1 group chats: \n%2",
-			missingGroupNameToRemove: "Please enter groupNoti name you want to remove",
-			removed: "Removed notification group: %1",
-			missingGroupNameToSend: "Please enter groupNoti name you want to send message",
-			groupIsEmpty: "Notification group \"%1\" is empty",
-			sending: "Sending notification to %1 group chats",
-			success: "Sent notification to %1 group chats in notification group \"%2\" successfully",
-			notAdminOfGroup: "You are not admin of this group",
-			missingGroupNameToView: "Please enter groupNoti name you want to view info",
-			groupInfo: "- Group Name: %1\n - ID: %2\n - Created at: %3\n%4 ",
-			groupInfoHasGroup: "- Has group chats: \n%1",
-			noGroup: "You have not created/manage any notification group"
+			missingGroupName: "Por favor, insira o nome do grupo de notificação",
+			groupNameExists: "O grupo de notificação com o nome %1 já foi criado por você antes, escolha outro nome",
+			createdGroup: "Grupo de notificação criado com sucesso:\n- Nome: %1\n- ID: %2",
+			missingGroupNameToAdd: "Por favor, insira o nome do grupo de notificação que deseja adicionar a este grupo",
+			groupNameNotExists: "Você não criou/gerencia nenhum grupo de notificação com o nome: %1",
+			notAdmin: "Você não é administrador deste grupo",
+			added: "Grupo atual adicionado ao grupo de notificação: %1",
+			missingGroupNameToDelete: "Por favor, insira o nome do grupo de notificação que deseja deletar desta lista",
+			notInGroup: "O grupo atual não está no grupo de notificação %1",
+			deleted: "Grupo atual removido do grupo de notificação: %1",
+			failed: "Falha ao enviar notificação para %1 grupos: \n%2",
+			missingGroupNameToRemove: "Por favor, insira o nome do grupo de notificação que deseja remover",
+			removed: "Grupo de notificação removido: %1",
+			missingGroupNameToSend: "Por favor, insira o nome do grupo de notificação para enviar a mensagem",
+			groupIsEmpty: "O grupo de notificação \"%1\" está vazio",
+			sending: "Enviando notificação para %1 grupos",
+			success: "Notificação enviada para %1 grupos no grupo de notificação \"%2\" com sucesso",
+			notAdminOfGroup: "Você não é administrador deste grupo",
+			missingGroupNameToView: "Por favor, insira o nome do grupo de notificação que deseja ver informações",
+			groupInfo: "- Nome do Grupo: %1\n - ID: %2\n - Criado em: %3\n%4 ",
+			groupInfoHasGroup: "- Tem grupos: \n%1",
+			noGroup: "Você não criou/gerencia nenhum grupo de notificação"
 		}
 	},
 	setalias: {
-		description: "Add an alias for any command in your group",
-		guide: "  This command is used to add/remove alias for any command in your group\n   {pn} add <alias> <command>: add an alias for the command in your group\n   {pn} add <alias> <command> -g: add an alias for the command in the whole system (only bot admin)\nExample:\n    {pn} add ctrk customrankcard\n\n   {pn} [remove | rm] <alias> <command>: remove an alias for the command in your group\n   {pn} [remove | rm] <alias> <command> -g: remove an alias for the command in the whole system (only bot admin)\nExample:\n    {pn} rm ctrk customrankcard\n\n   {pn} list: list all alias for commands in your group\n   {pn} list -g: list all alias for commands in the whole system"
+		description: "Adicionar um apelido para qualquer comando no seu grupo",
+		guide: "  Este comando é usado para adicionar/remover apelidos para qualquer comando no seu grupo\n   {pn} add <apelido> <comando>: adicionar um apelido para o comando no seu grupo\n   {pn} add <apelido> <comando> -g: adicionar um apelido para o comando em todo o sistema (apenas administrador do bot)\nExemplo:\n    {pn} add ctrk customrankcard\n\n   {pn} [remove | rm] <apelido> <comando>: remover um apelido para o comando no seu grupo\n   {pn} [remove | rm] <apelido> <comando> -g: remover um apelido para o comando em todo o sistema (apenas administrador do bot)\nExemplo:\n    {pn} rm ctrk customrankcard\n\n   {pn} list: listar todos os apelidos para comandos no seu grupo\n   {pn} list -g: listar todos os apelidos para comandos em todo o sistema"
 	},
 	setavt: {
-		description: "Change bot avatar",
+		description: "Alterar avatar do bot",
 		text: {
-			cannotGetImage: "❌ | An error occurred while querying the image url",
-			invalidImageFormat: "❌ | Invalid image format",
-			changedAvatar: "✅ | Changed bot avatar successfully"
+			cannotGetImage: "❌ | Ocorreu um erro ao consultar a URL da imagem",
+			invalidImageFormat: "❌ | Formato de imagem inválido",
+			changedAvatar: "✅ | Avatar do bot alterado com sucesso"
 		}
 	},
 	setlang: {
-		description: "Set default language of bot for current chat or all chats",
-		guide: "   {pn} <language code ISO 639-1\n   Example:    {pn} en    {pn} vi    {pn} ja",
+		description: "Definir o idioma padrão do bot para o chat atual ou para todos os chats",
+		guide: "   {pn} <código do idioma ISO 639-1\n   Exemplo:    {pn} en    {pn} vi    {pn} ja",
 		text: {
-			setLangForAll: "Set default language for all chats: %1",
-			setLangForCurrent: "Set default language for current chat: %1",
-			noPermission: "Only bot admin can use this command"
+			setLangForAll: "Idioma padrão definido para todos os chats: %1",
+			setLangForCurrent: "Idioma padrão definido para o chat atual: %1",
+			noPermission: "Apenas administradores do bot podem usar este comando"
 		}
 	},
 	setleave: {
-		description: "Edit content/turn on/off leave message when member leave your group chat",
+		description: "Editar conteúdo/ativar/desativar mensagem de saída quando um membro sair do grupo",
 		guide: {
-			body: "   {pn} on: Turn on leave message\n   {pn} off: Turn off leave message\n   {pn} text [<content> | reset]: edit text content or reset to default, available shortcuts:\n  + {userName}: name of member who leave group\n  + {userNameTag}: name of member who leave group (tag)\n  + {boxName}: name of group chat\n  + {type}: leave/kicked by admin\n  + {session}: session in day\n\n   Example:\n    {pn} text {userName} has {type} group, see you again 🤧\n\n   Reply or send a message with file with content {pn} file: to add attachment file to leave message (image, video, audio)\n\nExample:\n   {pn} file reset: reset file",
+			body: "   {pn} on: Ativar mensagem de saída\n   {pn} off: Desativar mensagem de saída\n   {pn} text [<conteúdo> | reset]: editar conteúdo do texto ou redefinir para o padrão, atalhos disponíveis:\n  + {userName}: nome do membro que saiu\n  + {userNameTag}: nome do membro que saiu (tag)\n  + {boxName}: nome do grupo\n  + {type}: saiu/expulso pelo administrador\n  + {session}: período do dia\n\n   Exemplo:\n    {pn} text {userName} {type} do grupo, até logo 🤧\n\n   Responda ou envie uma mensagem com arquivo com o conteúdo {pn} file: para adicionar arquivo anexo à mensagem de saída\n\nExemplo:\n   {pn} file reset: redefinir arquivo",
 			attachment: {
 				[`${process.cwd()}/scripts/cmds/assets/guide/setleave/setleave_en_1.png`]: "https://i.ibb.co/2FKJHJr/guide1.png"
 			}
 		},
 		text: {
-			missingContent: "Please enter content",
-			edited: "Edited leave message content of your group to:\n%1",
-			reseted: "Reseted leave message content",
-			noFile: "No leave message attachment file to reset",
-			resetedFile: "Reseted leave message attachment file successfully",
-			missingFile: "Please reply this message with image/video/audio file",
-			addedFile: "Added %1 attachment file to your leave message"
+			missingContent: "Por favor, insira o conteúdo",
+			edited: "Conteúdo da mensagem de saída do seu grupo editado para:\n%1",
+			reseted: "Conteúdo da mensagem de saída redefinido",
+			noFile: "Nenhum arquivo anexo da mensagem de saída para redefinir",
+			resetedFile: "Arquivo anexo da mensagem de saída redefinido com sucesso",
+			missingFile: "Por favor, responda esta mensagem com um arquivo de imagem/vídeo/áudio",
+			addedFile: "%1 arquivo(s) anexo(s) adicionados à sua mensagem de saída"
 		}
 	},
 	setname: {
-		description: "Change nickname of all members in chat or members tagged by a format",
+		description: "Alterar apelido de todos os membros do chat ou membros marcados por um formato",
 		guide: {
-			body: "   {pn} <nick name>: change nickname of yourself\n   {pn} @tags <nick name>: change nickname of members tagged\n   {pn} all <nick name>: change nickname of all members in chat\n\nWith available shortcuts:\n   + {userName}: name of member\n   + {userID}: ID of member\n\n   Example: (see image)",
+			body: "   {pn} <apelido>: alterar apelido de você mesmo\n   {pn} @tags <apelido>: alterar apelido dos membros marcados\n   {pn} all <apelido>: alterar apelido de todos os membros do chat\n\nCom atalhos disponíveis:\n   + {userName}: nome do membro\n   + {userID}: ID do membro\n\n   Exemplo: (ver imagem)",
 			attachment: {
 				[`${process.cwd()}/scripts/cmds/assets/guide/setname_1.png`]: "https://i.ibb.co/gFh23zb/guide1.png",
 				[`${process.cwd()}/scripts/cmds/assets/guide/setname_2.png`]: "https://i.ibb.co/BNWHKgj/guide2.png"
 			}
 		},
 		text: {
-			error: "An error has occurred, try turning off the invite link feature in the group and try again later"
+			error: "Ocorreu um erro, tente desativar o recurso de link de convite no grupo e tente novamente mais tarde"
 		}
 	},
 	setrole: {
-		description: "Edit role of command (commands with role < 2)",
-		guide: "   {pn} <commandName> <new role>: set new role for command\n   With:\n   + <commandName>: command name\n   + <new role>: new role of command with:\n   + <new role> = 0: command can be used by all members in group\n   + <new role> = 1: command can be used by admin only\n   + <new role> = default: reset role of command to default\n   Example:\n    {pn} rank 1: (command rank can be used by admin only)\n    {pn} rank 0: (command rank can be used by all members in group)\n    {pn} rank default: reset to default\n—————\n   {pn} [viewrole|view|show]: view role of edited commands",
+		description: "Editar função do comando (comandos com função < 2)",
+		guide: "   {pn} <nomeDoComando> <nova função>: definir nova função para o comando\n   Com:\n   + <nomeDoComando>: nome do comando\n   + <nova função>: nova função do comando com:\n   + <nova função> = 0: comando pode ser usado por todos os membros do grupo\n   + <nova função> = 1: comando pode ser usado apenas por administradores\n   + <nova função> = default: redefinir função do comando para o padrão\n   Exemplo:\n    {pn} rank 1: (comando rank pode ser usado apenas por administradores)\n    {pn} rank 0: (comando rank pode ser usado por todos os membros do grupo)\n    {pn} rank default: redefinir para o padrão\n—————\n   {pn} [viewrole|view|show]: ver função dos comandos editados",
 		text: {
-			noEditedCommand: "✅ Your group has no edited command",
-			editedCommand: "⚠️ Your group has edited commands:\n",
-			noPermission: "❗ Only admin can use this command",
-			commandNotFound: "Command \"%1\" not found",
-			noChangeRole: "❗ Can't change role of command \"%1\"",
-			resetRole: "Reset role of command \"%1\" to default",
-			changedRole: "Changed role of command \"%1\" to %2"
+			noEditedCommand: "✅ Seu grupo não tem comandos editados",
+			editedCommand: "⚠️ Seu grupo tem comandos editados:\n",
+			noPermission: "❗ Apenas administradores podem usar este comando",
+			commandNotFound: "Comando \"%1\" não encontrado",
+			noChangeRole: "❗ Não é possível alterar a função do comando \"%1\"",
+			resetRole: "Função do comando \"%1\" redefinida para o padrão",
+			changedRole: "Função do comando \"%1\" alterada para %2"
 		}
 	},
 	setwelcome: {
-		description: "Edit welcome message content when new member join your group chat",
+		description: "Editar conteúdo da mensagem de boas-vindas quando um novo membro entrar no grupo",
 		guide: {
-			body: "   {pn} text [<content> | reset]: edit text content or reset to default, with some shortcuts:\n  + {userName}: new member name\n  + {userNameTag}: new member name (tag)\n  + {boxName}:  group chat name\n  + {multiple}: you || you guys\n  + {session}:  session in day\n\n   Example:\n    {pn} text Hello {userName}, welcome to {boxName}, have a nice day {multiple}\n\n   Reply (phản hồi) or send a message with file with content {pn} file: to add file attachments to welcome message (image, video, audio)\n\n   Example:\n    {pn} file reset: delete file attachments",
+			body: "   {pn} text [<conteúdo> | reset]: editar conteúdo do texto ou redefinir para o padrão, com alguns atalhos:\n  + {userName}: nome do novo membro\n  + {userNameTag}: nome do novo membro (tag)\n  + {boxName}: nome do grupo\n  + {multiple}: você || vocês\n  + {session}: período do dia\n\n   Exemplo:\n    {pn} text Olá {userName}, bem-vindo(a) ao {boxName}, tenha um bom {multiple} {session}\n\n   Responda ou envie uma mensagem com arquivo com o conteúdo {pn} file: para adicionar arquivos anexos à mensagem de boas-vindas (imagem, vídeo, áudio)\n\n   Exemplo:\n    {pn} file reset: deletar arquivos anexos",
 			attachment: {
 				[`${process.cwd()}/scripts/cmds/assets/guide/setwelcome/setwelcome_en_1.png`]: "https://i.ibb.co/vsCz0ks/setwelcome-en-1.png"
 			}
 		},
 		text: {
-			missingContent: "Please enter welcome message content",
-			edited: "Edited welcome message content of your group to: %1",
-			reseted: "Reseted welcome message content",
-			noFile: "No file attachments to delete",
-			resetedFile: "Reseted file attachments successfully",
-			missingFile: "Please reply this message with image/video/audio file",
-			addedFile: "Added %1 file attachments to your group welcome message"
+			missingContent: "Por favor, insira o conteúdo da mensagem de boas-vindas",
+			edited: "Conteúdo da mensagem de boas-vindas do seu grupo editado para: %1",
+			reseted: "Conteúdo da mensagem de boas-vindas redefinido",
+			noFile: "Nenhum arquivo anexo para deletar",
+			resetedFile: "Arquivos anexos redefinidos com sucesso",
+			missingFile: "Por favor, responda esta mensagem com um arquivo de imagem/vídeo/áudio",
+			addedFile: "%1 arquivo(s) anexo(s) adicionados à mensagem de boas-vindas do seu grupo"
 		}
 	},
 	shortcut: {
-		description: "Add a shortcut for your message in group chat",
+		description: "Adicionar um atalho para sua mensagem no grupo",
 		text: {
-			missingContent: 'Please enter the message content',
-			shortcutExists: 'Shortcut "%1" already exists, react to this message to replace the content of the shortcut',
-			shortcutExistsByOther: 'Shortcut %1 has been added by other member, please try another keyword',
-			added: 'Added shortcut %1 => %2',
-			addedAttachment: ' with %1 attachment(s)',
-			missingKey: 'Please enter the keyword of the shortcut you want to delete',
-			notFound: 'No shortcut found for keyword %1 in your group chat',
-			onlyAdmin: 'Only administrators can delete other people\'s shortcuts',
-			deleted: 'Deleted shortcut %1',
-			empty: 'Your group chat has not added any shortcuts',
-			message: 'Message',
-			attachment: 'Attachment',
-			list: 'Your shortcuts list',
-			onlyAdminRemoveAll: 'Only administrators can remove all shortcuts in the group chat',
-			confirmRemoveAll: 'Are you sure you want to remove all shortcuts in this group chat? (react to this message to confirm)',
-			removedAll: 'Removed all shortcuts in your group chat'
+			missingContent: 'Por favor, insira o conteúdo da mensagem',
+			shortcutExists: 'O atalho "%1" já existe, reaja a esta mensagem para substituir o conteúdo do atalho',
+			shortcutExistsByOther: 'O atalho %1 já foi adicionado por outro membro, tente outra palavra-chave',
+			added: 'Atalho %1 => %2 adicionado',
+			addedAttachment: ' com %1 anexo(s)',
+			missingKey: 'Por favor, insira a palavra-chave do atalho que deseja deletar',
+			notFound: 'Nenhum atalho encontrado para a palavra-chave %1 no seu grupo',
+			onlyAdmin: 'Apenas administradores podem deletar atalhos de outras pessoas',
+			deleted: 'Atalho %1 deletado',
+			empty: 'Seu grupo ainda não adicionou nenhum atalho',
+			message: 'Mensagem',
+			attachment: 'Anexo',
+			list: 'Lista de atalhos do seu grupo',
+			onlyAdminRemoveAll: 'Apenas administradores podem remover todos os atalhos do grupo',
+			confirmRemoveAll: 'Tem certeza que deseja remover todos os atalhos deste grupo? (reaja a esta mensagem para confirmar)',
+			removedAll: 'Todos os atalhos do seu grupo foram removidos'
 		}
 	},
 	simsimi: {
-		description: "Chat with simsimi",
-		guide: "   {pn} [on | off]: turn on/off simsimi\n\n   {pn} <word>: chat with simsimi\n   Example:\n    {pn} hi",
+		description: "Conversar com o Simsimi",
+		guide: "   {pn} [on | off]: ativar/desativar o Simsimi\n\n   {pn} <palavra>: conversar com o Simsimi\n   Exemplo:\n    {pn} oi",
 		text: {
-			turnedOn: "Turned on simsimi successfully!",
-			turnedOff: "Turned off simsimi successfully!",
-			chatting: "Chatting with simsimi...",
-			error: "Simsimi is busy, please try again later"
+			turnedOn: "Simsimi ATIVADO com sucesso!",
+			turnedOff: "Simsimi DESATIVADO com sucesso!",
+			chatting: "Conversando com o Simsimi...",
+			error: "O Simsimi está ocupado, tente novamente mais tarde"
 		}
 	},
 	sorthelp: {
-		description: "Sort help list",
+		description: "Ordenar a lista de ajuda",
 		guide: "{pn} [name | category]",
 		text: {
-			savedName: "Saved sort help list by name",
-			savedCategory: "Saved sort help list by category"
+			savedName: "Ordenação da lista de ajuda por nome salva",
+			savedCategory: "Ordenação da lista de ajuda por categoria salva"
 		}
 	},
 	thread: {
-		description: "Manage group chat in bot system",
-		guide: "   {pn} [find | -f | search | -s] <name to find>: search group chat in bot data by name\n   {pn} [find | -f | search | -s] [-j | joined] <name to find>: search group chat in bot data that bot still joined by name\n   {pn} [ban | -b] [<tid> | leave blank] <reason>: use to ban group with id <tid> or current group using bot\n   Example:\n    {pn} ban 3950898668362484 spam bot\n    {pn} ban spam too much\n    {pn} unban [<tid> | leave blank] to unban group with id <tid> or current group",
+		description: "Gerenciar grupos no sistema do bot",
+		guide: "   {pn} [find | -f | search | -s] <nome para buscar>: buscar grupos nos dados do bot por nome\n   {pn} [find | -f | search | -s] [-j | joined] <nome para buscar>: buscar grupos nos dados do bot onde o bot ainda está presente por nome\n   {pn} [ban | -b] [<tid> | deixar em branco] <motivo>: usar para banir grupo com id <tid> ou grupo atual do bot\n   Exemplo:\n    {pn} ban 3950898668362484 spam no bot\n    {pn} ban spam demais\n    {pn} unban [<tid> | deixar em branco] para desbanir grupo com id <tid> ou grupo atual",
 		text: {
-			noPermission: "You don't have permission to use this feature",
-			found: "🔎 Found %1 group matching the keyword \"%3\" in bot data:\n%3",
-			notFound: "❌ No group found matching the keyword: \"%1\" in bot data",
-			hasBanned: "Group with id [%1 | %2] has been banned before:\n» Reason: %3\n» Time: %4",
-			banned: "Banned group with id [%1 | %2] using bot.\n» Reason: %3\n» Time: %4",
-			notBanned: "Group with id [%1 | %2] is not banned using bot",
-			unbanned: "Unbanned group with tid [%1 | %2] using bot",
-			missingReason: "Ban reason cannot be empty",
-			info: "» Box ID: %1\n» Name: %2\n» Date created data: %3\n» Total members: %4\n» Boy: %5 members\n» Girl: %6 members\n» Total messages: %7%8"
+			noPermission: "Você não tem permissão para usar este recurso",
+			found: "🔎 %1 grupo(s) encontrado(s) com a palavra-chave \"%3\" nos dados do bot:\n%3",
+			notFound: "❌ Nenhum grupo encontrado com a palavra-chave: \"%1\" nos dados do bot",
+			hasBanned: "O grupo com id [%1 | %2] já foi banido antes:\n» Motivo: %3\n» Data: %4",
+			banned: "Grupo com id [%1 | %2] banido de usar o bot.\n» Motivo: %3\n» Data: %4",
+			notBanned: "O grupo com id [%1 | %2] não está banido",
+			unbanned: "Grupo com tid [%1 | %2] desbanido",
+			missingReason: "O motivo do ban não pode estar vazio",
+			info: "» ID do grupo: %1\n» Nome: %2\n» Data de criação dos dados: %3\n» Total de membros: %4\n» Homens: %5 membros\n» Mulheres: %6 membros\n» Total de mensagens: %7%8"
 		}
 	},
 	tid: {
-		description: "View threadID of your group chat",
+		description: "Ver o ID do seu grupo",
 		guide: "{pn}"
 	},
 	tik: {
-		description: "Download video/slide (image), audio from tiktok link",
-		guide: "   {pn} [video|-v|v] <url>: use to download video/slide (image) from tiktok link.\n   {pn} [audio|-a|a] <url>: use to download audio from tiktok link",
+		description: "Baixar vídeo/slide (imagem), áudio do link do TikTok",
+		guide: "   {pn} [video|-v|v] <url>: usar para baixar vídeo/slide (imagem) do link do TikTok.\n   {pn} [audio|-a|a] <url>: usar para baixar áudio do link do TikTok",
 		text: {
-			invalidUrl: "Please enter a valid tiktok url",
-			downloadingVideo: "Downloading video: %1...",
-			downloadedSlide: "Downloaded slide: %1\n%2",
-			downloadedVideo: "Downloaded video: %1\nDownload Url: %2",
-			downloadingAudio: "Downloading audio: %1...",
-			downloadedAudio: "Downloaded audio: %1"
+			invalidUrl: "Por favor, insira uma URL válida do TikTok",
+			downloadingVideo: "Baixando vídeo: %1...",
+			downloadedSlide: "Slide baixado: %1\n%2",
+			downloadedVideo: "Vídeo baixado: %1\nURL de download: %2",
+			downloadingAudio: "Baixando áudio: %1...",
+			downloadedAudio: "Áudio baixado: %1"
 		}
 	},
 	trigger: {
-		description: "Trigger image",
-		guide: "{pn} [@tag | empty]"
+		description: "Imagem de gatilho",
+		guide: "{pn} [@tag | vazio]"
 	},
 	uid: {
-		description: "View facebook user id of user",
-		guide: "   {pn}: use to view your facebook user id\n   {pn} @tag: view facebook user id of tagged people\n   {pn} <profile link>: view facebook user id of profile link",
+		description: "Ver o ID do usuário do Facebook",
+		guide: "   {pn}: usar para ver seu próprio ID\n   {pn} @tag: ver o ID das pessoas marcadas\n   {pn} <link do perfil>: ver o ID do perfil",
 		text: {
-			syntaxError: "Please tag the person you want to view uid or leave it blank to view your own uid"
+			syntaxError: "Marque a pessoa que deseja ver o UID ou deixe em branco para ver o seu próprio UID"
 		}
 	},
 	unsend: {
-		description: "Unsend bot's message",
-		guide: "reply the message you want to unsend and call the command {pn}",
+		description: "Apagar mensagem do bot",
+		guide: "responda a mensagem que deseja apagar e use o comando {pn}",
 		text: {
-			syntaxError: "Please reply the message you want to unsend"
+			syntaxError: "Por favor, responda a mensagem que deseja apagar"
 		}
 	},
 	user: {
-		description: "Manage users in bot system",
-		guide: "   {pn} [find | -f | search | -s] <name to find>: search for users in bot data by name\n\n   {pn} [ban | -b] [<uid> | @tag | reply message] <reason>: to ban user with id <uid> or tagged user or sender of message replied using bot\n\n   {pn} unban [<uid> | @tag | reply message]: to unban user using bot",
+		description: "Gerenciar usuários no sistema do bot",
+		guide: "   {pn} [find | -f | search | -s] <nome para buscar>: buscar usuários nos dados do bot por nome\n\n   {pn} [ban | -b] [<uid> | @tag | responder mensagem] <motivo>: banir usuário com id <uid> ou usuário marcado ou remetente da mensagem respondida de usar o bot\n\n   {pn} unban [<uid> | @tag | responder mensagem]: desbanir usuário de usar o bot",
 		text: {
-			noUserFound: "❌ No user found with name matching keyword: \"%1\" in bot data",
-			userFound: "🔎 Found %1 user with name matching keyword \"%2\" in bot data:\n%3",
-			uidRequired: "Uid of user to ban cannot be empty, please enter uid or tag or reply message of 1 user by user ban <uid> <reason>",
-			reasonRequired: "Reason to ban user cannot be empty, please enter uid or tag or reply message of 1 user by user ban <uid> <reason>",
-			userHasBanned: "User with id [%1 | %2] has been banned before:\n» Reason: %3\n» Date: %4",
-			userBanned: "User with id [%1 | %2] has been banned:\n» Reason: %3\n» Date: %4",
-			uidRequiredUnban: "Uid of user to unban cannot be empty",
-			userNotBanned: "User with id [%1 | %2] is not banned",
-			userUnbanned: "User with id [%1 | %2] has been unbanned"
+			noUserFound: "❌ Nenhum usuário encontrado com o nome correspondente à palavra-chave: \"%1\" nos dados do bot",
+			userFound: "🔎 %1 usuário(s) encontrado(s) com o nome correspondente à palavra-chave \"%2\" nos dados do bot:\n%3",
+			uidRequired: "O UID do usuário para banir não pode estar vazio, insira o UID, marque ou responda a mensagem de 1 usuário com user ban <uid> <motivo>",
+			reasonRequired: "O motivo para banir o usuário não pode estar vazio, insira o UID, marque ou responda a mensagem de 1 usuário com user ban <uid> <motivo>",
+			userHasBanned: "O usuário com id [%1 | %2] já foi banido antes:\n» Motivo: %3\n» Data: %4",
+			userBanned: "O usuário com id [%1 | %2] foi banido:\n» Motivo: %3\n» Data: %4",
+			uidRequiredUnban: "O UID do usuário para desbanir não pode estar vazio",
+			userNotBanned: "O usuário com id [%1 | %2] não está banido",
+			userUnbanned: "O usuário com id [%1 | %2] foi desbanido"
 		}
 	},
 	videofb: {
-		description: "Download video/story from facebook (public)",
-		guide: "   {pn} <url video/story>: tải video từ facebook",
+		description: "Baixar vídeo/story do Facebook (público)",
+		guide: "   {pn} <url do vídeo/story>: baixar vídeo do Facebook",
 		text: {
-			missingUrl: "Please enter the facebook video/story (public) url you want to download",
-			error: "An error occurred while downloading the video",
-			downloading: "Downloading video for you",
-			tooLarge: "Sorry, we can't download the video for you because the size is larger than 83MB"
+			missingUrl: "Por favor, insira a URL do vídeo/story do Facebook (público) que deseja baixar",
+			error: "Ocorreu um erro ao baixar o vídeo",
+			downloading: "Baixando vídeo para você",
+			tooLarge: "Desculpe, não podemos baixar o vídeo porque o tamanho é maior que 83MB"
 		}
 	},
 	warn: {
-		description: "warn member in group, if they have 3 warns, they will be banned",
-		guide: "   {pn} @tag <reason>: warn member\n   {pn} list: view list of warned members\n   {pn} listban: view list of banned members\n   {pn} info [@tag | <uid> | leave blank]: view warn info of tagged member or uid or yourself\n   {pn} unban <uid>: unban member by uid\n   {pn} unwarn <uid> [<warn number> | leave blank]: unwarn member by uid and warn number\n   {pn} warn reset: reset all warn data\n⚠️ You need to set admin for bot to auto kick banned members",
+		description: "avisar membro no grupo, se tiver 3 avisos, será banido",
+		guide: "   {pn} @tag <motivo>: avisar membro\n   {pn} list: ver lista de membros avisados\n   {pn} listban: ver lista de membros banidos\n   {pn} info [@tag | <uid> | deixar em branco]: ver informações de aviso do membro marcado ou UID ou você mesmo\n   {pn} unban <uid>: desbanir membro por UID\n   {pn} unwarn <uid> [<número do aviso> | deixar em branco]: remover aviso do membro por UID e número do aviso\n   {pn} warn reset: redefinir todos os dados de aviso\n⚠️ Você precisa definir o bot como administrador para expulsar automaticamente membros banidos",
 		text: {
-			list: "List of members who have been warned:\n%1\n\nTo view the details of the warnings, use the \"%2warn info [@tag | <uid> | leave blank]\" command: to view the warning information of the tagged person or uid or yourself",
-			listBan: "List of members who have been warned 3 times and banned from the box:\n%1",
-			listEmpty: "Your group has no members who have been warned",
-			listBanEmpty: "Your group has no members banned from the box",
-			invalidUid: "Please enter a valid uid of the person you want to view information",
-			noData: "No data",
-			noPermission: "❌ Only group administrators can unban members banned from the box",
-			invalidUid2: "⚠️ Please enter a valid uid of the person you want to unban",
-			notBanned: "⚠️ The user with id %1 has not been banned from your box",
-			unbanSuccess: "✅ Successfully unbanned member [%1 | %2], currently this person can join your chat box",
-			noPermission2: "❌ Only group administrators can remove warnings from members in the group",
-			invalidUid3: "⚠️ Please enter a uid or tag the person you want to remove the warning",
-			noData2: "⚠️ The user with id %1 has no warning data",
-			notEnoughWarn: "❌ The user %1 only has %2 warnings",
-			unwarnSuccess: "✅ Successfully removed the %1 warning of member [%2 | %3]",
-			noPermission3: "❌ Only group administrators can reset warning data",
-			resetWarnSuccess: "✅ Successfully reset warning data",
-			noPermission4: "❌ Only group administrators can warn members in the group",
-			invalidUid4: "⚠️ You need to tag or reply to the message of the person you want to warn",
-			warnSuccess: "⚠️ Warned member %1 times %2\n- Uid: %3\n- Reason: %4\n- Date Time: %5\nThis member has been warned 3 times and banned from the box, to unban use the command \"%6warn unban <uid>\" (with uid is the uid of the person you want to unban)",
-			noPermission5: "⚠️ Bot needs administrator permissions to kick banned members",
-			warnSuccess2: "⚠️ Warned member %1 times %2\n- Uid: %3\n- Reason: %4\n- Date Time: %5\nIf this person violates %6 more times, they will be banned from the box",
-			hasBanned: "⚠️ The following members have been warned 3 times before and banned from the box:\n%1",
-			failedKick: "⚠️ An error occurred when kicking the following members:\n%1"
+			list: "Lista de membros que foram avisados:\n%1\n\nPara ver os detalhes dos avisos, use o comando \"%2warn info [@tag | <uid> | deixar em branco]\" para ver as informações de aviso da pessoa marcada, UID ou você mesmo",
+			listBan: "Lista de membros que foram avisados 3 vezes e banidos do grupo:\n%1",
+			listEmpty: "Seu grupo não tem membros que foram avisados",
+			listBanEmpty: "Seu grupo não tem membros banidos do grupo",
+			invalidUid: "Por favor, insira um UID válido da pessoa que deseja ver as informações",
+			noData: "Sem dados",
+			noPermission: "❌ Apenas administradores do grupo podem desbanir membros banidos do grupo",
+			invalidUid2: "⚠️ Por favor, insira um UID válido da pessoa que deseja desbanir",
+			notBanned: "⚠️ O usuário com id %1 não foi banido do seu grupo",
+			unbanSuccess: "✅ Membro [%1 | %2] desbanido com sucesso, agora esta pessoa pode entrar no seu grupo",
+			noPermission2: "❌ Apenas administradores do grupo podem remover avisos de membros do grupo",
+			invalidUid3: "⚠️ Por favor, insira um UID ou marque a pessoa que deseja remover o aviso",
+			noData2: "⚠️ O usuário com id %1 não tem dados de aviso",
+			notEnoughWarn: "❌ O usuário %1 tem apenas %2 avisos",
+			unwarnSuccess: "✅ Aviso %1 do membro [%2 | %3] removido com sucesso",
+			noPermission3: "❌ Apenas administradores do grupo podem redefinir dados de aviso",
+			resetWarnSuccess: "✅ Dados de aviso redefinidos com sucesso",
+			noPermission4: "❌ Apenas administradores do grupo podem avisar membros",
+			invalidUid4: "⚠️ Você precisa marcar ou responder à mensagem da pessoa que deseja avisar",
+			warnSuccess: "⚠️ Membro %1 avisado %2 vezes\n- UID: %3\n- Motivo: %4\n- Data/Hora: %5\nEste membro foi avisado 3 vezes e banido do grupo, para desbanir use o comando \"%6warn unban <uid>\" (com uid é o UID da pessoa que deseja desbanir)",
+			noPermission5: "⚠️ O bot precisa de permissões de administrador para expulsar membros banidos",
+			warnSuccess2: "⚠️ Membro %1 avisado %2 vezes\n- UID: %3\n- Motivo: %4\n- Data/Hora: %5\nSe esta pessoa violar mais %6 vezes, será banida do grupo",
+			hasBanned: "⚠️ Os seguintes membros foram avisados 3 vezes antes e banidos do grupo:\n%1",
+			failedKick: "⚠️ Ocorreu um erro ao expulsar os seguintes membros:\n%1"
 		}
 	},
 	weather: {
-		description: "view the current and next 5 days weather forecast",
-		guide: "{pn} <location>",
+		description: "ver a previsão do tempo atual e dos próximos 5 dias",
+		guide: "{pn} <localização>",
 		text: {
-			syntaxError: "Please enter a location",
-			notFound: "Location not found: %1",
-			error: "An error has occurred: %1",
-			today: "Today's weather:\n%1\n🌡 Low - high temperature %2°C - %3°C\n🌡 Feels like %4°C - %5°C\n🌅 Sunrise %6\n🌄 Sunset %7\n🌃 Moonrise %8\n🏙️ Moonset %9\n🌞 Day: %10\n🌙 Night: %11"
+			syntaxError: "Por favor, insira uma localização",
+			notFound: "Localização não encontrada: %1",
+			error: "Ocorreu um erro: %1",
+			today: "Clima de hoje:\n%1\n🌡 Temperatura mínima - máxima %2°C - %3°C\n🌡 Sensação térmica %4°C - %5°C\n🌅 Nascer do sol %6\n🌄 Pôr do sol %7\n🌃 Nascer da lua %8\n🏙️ Pôr da lua %9\n🌞 Dia: %10\n🌙 Noite: %11"
 		}
 	},
 	ytb: {
-		description: "Download video, audio or view video information on YouTube",
-		guide: "   {pn} [video|-v] [<video name>|<video link>]: use to download video from youtube.\n   {pn} [audio|-a] [<video name>|<video link>]: use to download audio from youtube\n   {pn} [info|-i] [<video name>|<video link>]: use to view video information from youtube\n   Example:\n    {pn} -v Fallen Kingdom\n    {pn} -a Fallen Kingdom\n    {pn} -i Fallen Kingdom",
+		description: "Baixar vídeo, áudio ou ver informações do vídeo no YouTube",
+		guide: "   {pn} [video|-v] [<nome do vídeo>|<link do vídeo>]: usar para baixar vídeo do YouTube.\n   {pn} [audio|-a] [<nome do vídeo>|<link do vídeo>]: usar para baixar áudio do YouTube\n   {pn} [info|-i] [<nome do vídeo>|<link do vídeo>]: usar para ver informações do vídeo no YouTube\n   Exemplo:\n    {pn} -v Fallen Kingdom\n    {pn} -a Fallen Kingdom\n    {pn} -i Fallen Kingdom",
 		text: {
-			error: "An error has occurred: %1",
-			noResult: "No search results match the keyword %1",
-			choose: "%1Reply to the message with the number to choose or any content to cancel",
-			downloading: "Downloading video %1",
-			noVideo: "Sorry, no video was found with a size less than 83MB",
-			downloadingAudio: "Downloading audio %1",
-			noAudio: "Sorry, no audio was found with a size less than 26MB",
-			info: "💠 Title: %1\n🏪 Channel: %2\n👨‍👩‍👧‍👦 Subscriber: %3\n⏱ Video time: %4\n👀 View: %5\n👍 Like: %6\n🆙 Upload date: %7\n🔠 ID: %8\n🔗 Link: %9",
-			listChapter: "\n📖 List chapter: %1\n"
+			error: "Ocorreu um erro: %1",
+			noResult: "Nenhum resultado de pesquisa corresponde à palavra-chave %1",
+			choose: "%1Responda à mensagem com o número para escolher ou qualquer conteúdo para cancelar",
+			downloading: "Baixando vídeo %1",
+			noVideo: "Desculpe, nenhum vídeo foi encontrado com tamanho menor que 83MB",
+			downloadingAudio: "Baixando áudio %1",
+			noAudio: "Desculpe, nenhum áudio foi encontrado com tamanho menor que 26MB",
+			info: "💠 Título: %1\n🏪 Canal: %2\n👨‍👩‍👧‍👦 Inscritos: %3\n⏱ Duração: %4\n👀 Visualizações: %5\n👍 Curtidas: %6\n🆙 Data de upload: %7\n🔠 ID: %8\n🔗 Link: %9",
+			listChapter: "\n📖 Lista de capítulos: %1\n"
 		}
 	}
 };
